@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ drink.name }}</h2>
+  <div class="row mb-3">
+    <div class="col-sm-6">
+      <dl class="row">
+        <dt class="col-sm-3">Price:</dt>
+        <dd class="col-sm-9">{{ drink.price }}</dd>
+        <dt class="col-sm-3">Opening Stock:</dt>
+        <dd class="col-sm-9">{{ drink.opening_stock }}</dd>
+        <dt class="col-sm-3">New Stock:</dt>
+        <dd class="col-sm-9">{{ drink.new_stock }}</dd>
+        <dt class="col-sm-3">Total Stock:</dt>
+        <dd class="col-sm-9">{{ drink.total_stock }}</dd>
+        <dt class="col-sm-3">Drinks Sold:</dt>
+        <dd class="col-sm-9">{{ drink.number_sold }}</dd>
+        <dt class="col-sm-3">Damaged Drinks:</dt>
+        <dd class="col-sm-9">{{ drink.damage }}</dd>
+        <dt class="col-sm-3">Total Sales:</dt>
+        <dd class="col-sm-9">{{ drink.amount_sold }}</dd>
+        <dt class="col-sm-3">Closing Stock:</dt>
+        <dd class="col-sm-9">{{ drink.closing_stock }}</dd>
+      </dl>
+    </div>
+  </div>
+  <a href="{% url 'drink_update' drink.id %}" class="btn btn-primary">Edit</a>
+  <a href="{% url 'drink_delete' drink.id %}" class="btn btn-danger">Delete</a>
+  {% comment %} <form action="{% url 'drink_delete' drink.id %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this drink?')">Delete</button>
+  </form> {% endcomment %}
+{% endblock %}

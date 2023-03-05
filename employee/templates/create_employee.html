@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  {% if form.errors %}
+<div class="alert alert-danger" role="alert">
+    <strong>Error:</strong>
+    {% for field, errors in form.errors.items %}
+    {{ field }}: {{ errors|join:", " }}
+    {% endfor %}
+</div>
+{% endif %}
+  <h1>Create Employee</h1>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+  <form method="post" class="form">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.first_name.label_tag }}
+        {{ form.first_name }}
+    </div>
+    <div class="form-group">
+        {{ form.last_name.label_tag }}
+        {{ form.last_name }}
+    </div>
+    <div class="form-group">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {% if form.email.errors %}
+        <div class="invalid-feedback">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.hire_date.label_tag }}
+        {{ form.hire_date }}
+    </div>
+    <div class="form-group">
+        {{ form.hourly_rate.label_tag }}
+        {{ form.hourly_rate }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+</div>
+{% endblock %}

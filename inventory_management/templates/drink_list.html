@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="my-4">Drink Inventory</h1>
+    <div class="mb-3">
+      <a href="{% url 'drink_create' %}" class="btn btn-primary">Add Drink</a>
+    </div>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th>Name</th>
+          <th>Opening Stock</th>
+          <th>New Stock</th>
+          <th>Total Stock</th>
+          <th>Price</th>
+          <th>Number Sold</th>
+          <th>Damage</th>
+          <th>Amount Sold</th>
+          <th>Closing Stock</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for drink in drinks %}
+          <tr>
+            <td>{{ drink.name }}</td>
+            <td>{{ drink.opening_stock }}</td>
+            <td>{{ drink.new_stock }}</td>
+            <td>{{ drink.total_stock }}</td>
+            <td>{{ drink.price }}</td>
+            <td>{{ drink.number_sold }}</td>
+            <td>{{ drink.damage }}</td>
+            <td>{{ drink.amount_sold }}</td>
+            <td>{{ drink.closing_stock }}</td>
+            <td>
+              <a href="{% url 'drink_detail' drink.id %}" class="btn btn-sm btn-secondary">View</a>
+            </td>
+          </tr>
+          {% empty %}
+        <tr>
+          <td colspan="4">No drinks found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

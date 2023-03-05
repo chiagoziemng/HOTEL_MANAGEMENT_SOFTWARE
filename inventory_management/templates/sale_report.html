@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Sale Report</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <form method="get" class="form-inline mb-4">
+        <div class="form-group mr-2">
+          <label for="date_from">From:</label>
+          <input type="date" class="form-control ml-2" id="date_from" name="date_from" value="{{ date_from }}">
+        </div>
+        <div class="form-group mr-2">
+          <label for="date_to">To:</label>
+          <input type="date" class="form-control ml-2" id="date_to" name="date_to" value="{{ date_to }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      {% if total_sales %}
+        <h3>Total Sales: ₦{{ total_sales }}</h3>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Drink Name</th>
+            <th>Quantity</th>
+            <th>Price per Drink</th>
+            <th>Total Price</th>
+            <th>Mode of Payment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in sales %}
+            <tr>
+              <td>{{ sale.date_time|date:"d/m/Y" }}</td>
+              <td>{{ sale.drink.name }}</td>
+              <td>{{ sale.quantity }}</td>
+              <td>₦{{ sale.price }}</td>
+              <td>₦{{ sale.total_price }}</td>
+              <td>{{ sale.mode_of_payment }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">No sales found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
