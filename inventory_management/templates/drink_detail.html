@@ -1,38 +1,59 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block content %}
-  <div class="card mx-auto" style="max-width: 500px;">
-    {% if drink.image %}
-      <img src="{{ drink.image }}" class="card-img-top" alt="{{ drink.name }}">
-    {% else %}
-      <img src="{% static 'drinks/default.png' %}" class="card-img-top" alt="{{ drink.name }}">
-    {% endif %}
-    <div class="card-body">
-      <h2 class="card-title">{{ drink.name }}</h2>
-      <dl class="row">
-        <dt class="col-sm-4">Price:</dt>
-        <dd class="col-sm-8">{{ drink.price }}</dd>
-        <dt class="col-sm-4">Opening Stock:</dt>
-        <dd class="col-sm-8">{{ drink.opening_stock }}</dd>
-        <dt class="col-sm-4">New Stock:</dt>
-        <dd class="col-sm-8">{{ drink.new_stock }}</dd>
-        <dt class="col-sm-4">Total Stock:</dt>
-        <dd class="col-sm-8">{{ drink.total_stock }}</dd>
-        <dt class="col-sm-4">Drinks Sold:</dt>
-        <dd class="col-sm-8">{{ drink.number_sold }}</dd>
-        <dt class="col-sm-4">Damaged Drinks:</dt>
-        <dd class="col-sm-8">{{ drink.damage }}</dd>
-        <dt class="col-sm-4">Total Sales:</dt>
-        <dd class="col-sm-8">{{ drink.amount_sold }}</dd>
-        <dt class="col-sm-4">Closing Stock:</dt>
-        <dd class="col-sm-8">{{ drink.closing_stock }}</dd>
-      </dl>
-      <a href="{% url 'drink_update' drink.id %}" class="btn btn-primary">Edit</a>
-      <a href="{% url 'drink_delete' drink.id %}" class="btn btn-danger">Delete</a>
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-4">
+      <img src="{{ drink.image.url }}" class="img-fluid" alt="{{ drink.name }}">
+    </div>
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">{{ drink.name }}</h2>
+          <table class="table table-bordered table-hover">
+            <tbody>
+              <tr>
+                <th>Price</th>
+                <td>{{ drink.price }}</td>
+              </tr>
+              <tr>
+                <th>Opening Stock</th>
+                <td>{{ drink.opening_stock }}</td>
+              </tr>
+              <tr>
+                <th>New Stock</th>
+                <td>{{ drink.new_stock }}</td>
+              </tr>
+              <tr>
+                <th>Total Stock</th>
+                <td>{{ drink.total_stock }}</td>
+              </tr>
+              <tr>
+                <th>Drinks Sold</th>
+                <td>{{ drink.number_sold }}</td>
+              </tr>
+              <tr>
+                <th>Damaged Drinks</th>
+                <td>{{ drink.damage }}</td>
+              </tr>
+              <tr>
+                <th>Total Sales</th>
+                <td>{{ drink.amount_sold }}</td>
+              </tr>
+              <tr>
+                <th>Closing Stock</th>
+                <td>{{ drink.closing_stock }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'drink_update' drink.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'drink_delete' drink.id %}" class="btn btn-danger">Delete</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 {% endblock %}
-
-

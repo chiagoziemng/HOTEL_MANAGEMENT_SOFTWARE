@@ -6,10 +6,11 @@
     <div class="mb-3">
       <a href="{% url 'drink_create' %}" class="btn btn-primary">Add Drink</a>
     </div>
-    <table class="table">
+    <table class="table table-bordered">
       <thead class="thead-light">
         <tr>
           <th>Name</th>
+          <th>Image</th>
           <th>Opening Stock</th>
           <th>New Stock</th>
           <th>Total Stock</th>
@@ -25,6 +26,11 @@
         {% for drink in drinks %}
           <tr>
             <td>{{ drink.name }}</td>
+            {% if drink.image %}
+              <td><img src="{{ drink.image.url }}" alt="{{ drink.name }}" width="100" /></td>
+            {% else %}
+              <td>No Image</td>
+            {% endif %}
             <td>{{ drink.opening_stock }}</td>
             <td>{{ drink.new_stock }}</td>
             <td>{{ drink.total_stock }}</td>

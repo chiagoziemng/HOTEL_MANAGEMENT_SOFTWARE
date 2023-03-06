@@ -119,17 +119,21 @@ def drink_create(request):
     if request.method == 'POST':
         form = DrinkForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            drink = form.save(commit=False)
+            if 'image' in request.FILES:
+                drink.image = request.FILES['image']
+            drink.save()
             return redirect('drink_list')
     else:
         form = DrinkForm()
     return render(request, 'drink_create.html', {'form': form})
 
 
+
 def drink_update(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     if request.method == 'POST':
-        form = DrinkForm(request.POST, instance=drink)
+        form = DrinkForm(request.POST, request.FILES, instance=drink)
         if form.is_valid():
             form.save()
             return redirect('drink_list')

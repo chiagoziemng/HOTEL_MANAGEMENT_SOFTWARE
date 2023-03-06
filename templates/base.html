@@ -22,7 +22,7 @@
             <a href="{% url 'dashboard' %}"> My dashboard</a>
         </li>
         <li {% if section == "inventory" %}class="selected"{% endif %}>
-            <a href="{% url 'drink_list' %}">My Inventory</a>
+            <a href="{% url 'drink_list' %}">Stock</a>
         </li>
         <li {% if section == "category" %}class="selected"{% endif %}>
             <a href="{% url 'sale_list' %}">My Sale </a>
@@ -58,9 +58,13 @@
         {% endfor %}
     </ul>
 {% endif %}
+
+
 <div id="content">
     {% block content %}
     {% endblock %}
     </div>
+
+    
     </body>
     </html>
