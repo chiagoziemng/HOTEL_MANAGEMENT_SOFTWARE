@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container my-4">
-  <h1 class="mb-4">Sales List</h1>
+  <h1 class="mb-4">Sales Record</h1>
 
   <div class="row mb-3">
     <div class="col-md-6 text-md-right">
@@ -14,7 +14,6 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <th scope="col">ID</th>
           <th scope="col">Date/Time</th>
           <th scope="col">Drink</th>
           <th scope="col">Price</th>
@@ -27,7 +26,6 @@
       <tbody>
         {% for sale in sales %}
           <tr>
-            <th scope="row">{{ sale.id }}</th>
             <td>{{ sale.date_time }}</td>
             <td>{{ sale.drink.name }}</td>
             <td>₦{{ sale.price }}</td>

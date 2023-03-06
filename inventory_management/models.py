@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
+
 class Drink(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='drinks', default='drinks/default.png' ,blank=True, null=True)

@@ -12,8 +12,8 @@ urlpatterns = [
     path('employees/<int:pk>/employee_delete/', views.employee_delete, name='employee_delete'),
 
     # # Schedule views
-    path('schedules/', views.schedule_list, name='schedule_list'),
-    path('schedules/create_employee_schedule/', views.create_employee_schedule, name='create_employee_schedule'),
+    # path('schedules/', views.schedule_list, name='schedule_list'),
+    # path('schedules/create_employee_schedule/', views.create_employee_schedule, name='create_employee_schedule'),
     # path('schedules/<int:pk>/', views.schedule_detail, name='schedule_detail'),
     # path('schedules/<int:pk>/edit/', views.schedule_update, name='schedule_update'),
     # path('schedules/<int:pk>/delete/', views.schedule_delete, name='schedule_delete'),

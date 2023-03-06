@@ -53,6 +53,7 @@ def sale_report(request):
         'transfer_sales': transfer_sales,
         'cash_sales': cash_sales,
         'debt_sales': debt_sales
+        
     }
 
     if request.method == 'POST':
@@ -83,6 +84,7 @@ def sale_list(request):
     sales = Sale.objects.all()
     context = {
         'sales': sales
+        
     }
     return render(request, 'sale_list.html', context)
 
@@ -138,33 +140,41 @@ def sale_delete(request, pk):
 # DRINK INVENTORY
 @login_required
 def drink_list_by_date(request, year, month, day):
+    # Create a date object from the year, month, and day parameters
     target_date = date(year, month, day)
+    
+    # Fetch all the drinks that were created on the target date
     drinks = Drink.objects.filter(date_created__date=target_date).order_by('-date_created')
     
+    # Create a context dictionary with the drinks and target date
     context = {
         'drinks': drinks,
         'target_date': target_date,
     }
+    
+    # Render the drink_list_by_date.html template with the context dictionary
     return render(request, 'drink_list_by_date.html', context)
+
+
 
 @login_required
 def drink_list(request):
     today = datetime.date.today()
     drinks = Drink.objects.filter(date_created__date=today).annotate(date=TruncDate('date_created')).order_by('-date')
-    prev_date = today - datetime.timedelta(days=1)
-    prev_drinks = Drink.objects.filter(date_created__date=prev_date).annotate(date=TruncDate('date_created')).order_by('-date')
-    
+
     context = {
         'drinks': [],
-        'prev_drinks': [],
-        'previous_date': prev_date
+        'previous_date': today - datetime.timedelta(days=1),
     }
-    
+
     # Today's stock list
-    prev_closing_stock = 0
     for drink in drinks:
-        opening_stock = drink.opening_stock
-        closing_stock = prev_closing_stock + drink.opening_stock + drink.new_stock - drink.damage - drink.number_sold
+        prev_closing_stock = 0
+        prev_day_drinks = Drink.objects.filter(name=drink.name, date_created__date=context['previous_date']).order_by('-date_created').first()
+        if prev_day_drinks is not None:
+            prev_closing_stock = prev_day_drinks.closing_stock
+        opening_stock = prev_closing_stock + drink.opening_stock
+        closing_stock = opening_stock + drink.new_stock - drink.damage - drink.number_sold
         context['drinks'].append({
             'id': drink.id,
             'name': drink.name,
@@ -179,29 +189,9 @@ def drink_list(request):
             'closing_stock': closing_stock,
             'date': drink.date
         })
-        prev_closing_stock = closing_stock
-    
-    # Previous day's stock list
-    prev_closing_stock = 0
-    for drink in prev_drinks:
-        opening_stock = drink.opening_stock
-        closing_stock = prev_closing_stock + drink.opening_stock + drink.new_stock - drink.damage - drink.number_sold
-        context['prev_drinks'].append({
-            'name': drink.name,
-            'image': drink.image,
-            'opening_stock': opening_stock,
-            'new_stock': drink.new_stock,
-            'total_stock': opening_stock + drink.new_stock - drink.damage - drink.number_sold,
-            'price': drink.price,
-            'number_sold': drink.number_sold,
-            'damage': drink.damage,
-            'amount_sold': drink.number_sold * drink.price,
-            'closing_stock': closing_stock,
-            'date': drink.date
-        })
-        prev_closing_stock = closing_stock
-    
+
     return render(request, 'drink_list.html', context)
+
 
 
 @login_required
