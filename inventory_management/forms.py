@@ -2,6 +2,8 @@ from django import forms
 from .models import Drink, Sale
 
 class DrinkForm(forms.ModelForm):
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput)
+
     class Meta:
         model = Drink
         fields = ['name', 'opening_stock', 'new_stock', 'price', 'damage']
@@ -12,6 +14,8 @@ class DrinkForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'damage': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
 
 class SaleForm(forms.ModelForm):
     class Meta:

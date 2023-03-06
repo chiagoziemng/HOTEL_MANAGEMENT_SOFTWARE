@@ -4,6 +4,7 @@ from django.dispatch import receiver
 
 class Drink(models.Model):
     name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='drinks/%Y/%m/%d/', blank=True)
     opening_stock = models.IntegerField(default=0)
     new_stock = models.IntegerField(default=0)
     total_stock = models.IntegerField(default=0)
@@ -14,8 +15,13 @@ class Drink(models.Model):
     closing_stock = models.IntegerField(default=0)
     date_created = models.DateTimeField(auto_now_add=True)
 
+
     def __str__(self):
         return self.name
+    
+
+    class Meta:
+        verbose_name_plural = 'Drinks'
 
 @receiver(pre_save, sender=Drink)
 def update_drink_stock(sender, instance, **kwargs):

@@ -10,4 +10,18 @@
 &nbsp; &nbsp; &nbsp; &nbsp;
   <img alt="Dark" src="./account/img/2.png" width="45%">
 </p>
+project/
+|-- app1/
+|-- app2/
+|-- project/
+|   |-- __init__.py
+|   |-- settings.py
+|   |-- urls.py
+|   |-- asgi.py
+|   |-- wsgi.py
+|-- static/
+|-- media/
+|-- templates/
+|-- manage.py
+
 

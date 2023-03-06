@@ -115,16 +115,16 @@ def drink_detail(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     return render(request, 'drink_detail.html', {'drink': drink})
 
-
 def drink_create(request):
     if request.method == 'POST':
-        form = DrinkForm(request.POST)
+        form = DrinkForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('drink_list')
     else:
         form = DrinkForm()
     return render(request, 'drink_create.html', {'form': form})
+
 
 def drink_update(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
