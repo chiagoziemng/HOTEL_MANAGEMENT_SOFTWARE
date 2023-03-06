@@ -10,6 +10,7 @@ urlpatterns = [
     path('create/', views.drink_create, name='drink_create'),
     path('update/<int:pk>/', views.drink_update, name='drink_update'),
     path('delete/<int:pk>/', views.drink_delete, name='drink_delete'),
+    path('drink/<int:year>/<int:month>/<int:day>/', views.drink_list_by_date, name='drink_list_by_date'),
     
     # # Sale URLs
     path('sales/', views.sale_list, name='sale_list'),

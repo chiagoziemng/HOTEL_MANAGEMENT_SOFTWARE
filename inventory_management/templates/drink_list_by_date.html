@@ -2,13 +2,7 @@
 
 {% block content %}
   <div class="container">
-    <h1 class="my-4">Stock List - {{ drinks.0.date }}</h1>
-    <div class="mb-3">
-      <a href="{% url 'drink_create' %}" class="btn btn-primary">Add Drink</a>
-      {% if drinks.0.date != date.today %}
-        <a href="{% url 'drink_list_by_date' drinks.1.date.year drinks.1.date.month drinks.1.date.day %}" class="btn btn-secondary">View Previous Day</a>
-      {% endif %}
-    </div>
+    <h1 class="my-4">Stock List for {{ date }}</h1>
     <table class="table table-bordered">
       <thead class="thead-light">
         <tr>
@@ -22,7 +16,6 @@
           <th>Damage</th>
           <th>Amount Sold</th>
           <th>Closing Stock</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -42,11 +35,6 @@
             <td>{{ drink.damage }}</td>
             <td>{{ drink.amount_sold }}</td>
             <td>{{ drink.closing_stock }}</td>
-            <td>
-              {% if drink.id %}
-                <a href="{% url 'drink_detail' drink.id %}" class="btn btn-sm btn-secondary">View</a>
-              {% endif %}
-            </td>
           </tr>
           {% empty %}
         <tr>

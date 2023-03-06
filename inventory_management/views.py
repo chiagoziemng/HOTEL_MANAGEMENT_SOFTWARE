@@ -1,7 +1,12 @@
+from datetime import datetime, timedelta, date
+import datetime
+from django.db.models.functions import TruncDate
 from django.shortcuts import render, get_object_or_404, redirect
+
 from django.utils import timezone
+
 from django.db.models import Sum
-from datetime import datetime, timedelta
+
 import datetime
 
 from .models import Drink, Sale
@@ -17,7 +22,7 @@ def sale_report(request):
     date_from = request.GET.get('date_from', week_ago)
     date_to = request.GET.get('date_to', today)
 
-        # Validate date format
+    # Validate date format
     try:
         date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d').date()
     except (TypeError, ValueError):
@@ -33,11 +38,21 @@ def sale_report(request):
     # Calculate total sales for the selected date range
     total_sales = sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
 
+    # Get total sales for each mode of payment
+    pos_sales = sales.filter(mode_of_payment='POS').aggregate(Sum('total_price'))['total_price__sum'] or 0
+    transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
+    cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
+    debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
+
     context = {
         'sales': sales,
         'total_sales': total_sales,
         'date_from': date_from,
         'date_to': date_to,
+        'pos_sales': pos_sales,
+        'transfer_sales': transfer_sales,
+        'cash_sales': cash_sales,
+        'debt_sales': debt_sales
     }
 
     if request.method == 'POST':
@@ -46,13 +61,23 @@ def sale_report(request):
             # Filter sales by selected date
             sales = Sale.objects.filter(date_created__date=date_filter)
             total_sales = sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
+            pos_sales = sales.filter(mode_of_payment='POS').aggregate(Sum('total_price'))['total_price__sum'] or 0
+            transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
+            cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
+            debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
+
             context.update({
                 'sales': sales,
                 'total_sales': total_sales,
+                'pos_sales': pos_sales,
+                'transfer_sales': transfer_sales,
+                'cash_sales': cash_sales,
+                'debt_sales': debt_sales,
                 'date_filter': date_filter
             })
 
     return render(request, 'sale_report.html', context)
+
 
 def sale_list(request):
     sales = Sale.objects.all()
@@ -66,15 +91,19 @@ def sale_create(request):
     if request.method == 'POST':
         form = SaleForm(request.POST)
         if form.is_valid():
-            sale = form.save()
+            sale = form.save(commit=False)
+            if sale.mode_of_payment == 'DEBT':
+                sale.name_or_room_number = request.POST.get('name_or_room_number')
+            sale.save()
             drink = sale.drink
             drink.number_sold += sale.quantity
             drink.total_stock -= sale.quantity
             drink.save()
             return redirect('sale_list')
     else:
-        form = SaleForm()
+        form = SaleForm(instance=Sale())
     return render(request, 'sale_create.html', {'form': form})
+
 
 def sale_update(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
@@ -106,10 +135,75 @@ def sale_delete(request, pk):
 
 
 
+# DRINK INVENTORY
+
+def drink_list_by_date(request, year, month, day):
+    target_date = date(year, month, day)
+    drinks = Drink.objects.filter(date_created__date=target_date).order_by('-date_created')
+    
+    context = {
+        'drinks': drinks,
+        'target_date': target_date,
+    }
+    return render(request, 'drink_list_by_date.html', context)
+
+
 def drink_list(request):
-    drinks = Drink.objects.all()
-    context = {'drinks': drinks}
+    today = datetime.date.today()
+    drinks = Drink.objects.filter(date_created__date=today).annotate(date=TruncDate('date_created')).order_by('-date')
+    prev_date = today - datetime.timedelta(days=1)
+    prev_drinks = Drink.objects.filter(date_created__date=prev_date).annotate(date=TruncDate('date_created')).order_by('-date')
+    
+    context = {
+        'drinks': [],
+        'prev_drinks': [],
+        'previous_date': prev_date
+    }
+    
+    # Today's stock list
+    prev_closing_stock = 0
+    for drink in drinks:
+        opening_stock = drink.opening_stock
+        closing_stock = prev_closing_stock + drink.opening_stock + drink.new_stock - drink.damage - drink.number_sold
+        context['drinks'].append({
+            'id': drink.id,
+            'name': drink.name,
+            'image': drink.image,
+            'opening_stock': opening_stock,
+            'new_stock': drink.new_stock,
+            'total_stock': opening_stock + drink.new_stock - drink.damage - drink.number_sold,
+            'price': drink.price,
+            'number_sold': drink.number_sold,
+            'damage': drink.damage,
+            'amount_sold': drink.number_sold * drink.price,
+            'closing_stock': closing_stock,
+            'date': drink.date
+        })
+        prev_closing_stock = closing_stock
+    
+    # Previous day's stock list
+    prev_closing_stock = 0
+    for drink in prev_drinks:
+        opening_stock = drink.opening_stock
+        closing_stock = prev_closing_stock + drink.opening_stock + drink.new_stock - drink.damage - drink.number_sold
+        context['prev_drinks'].append({
+            'name': drink.name,
+            'image': drink.image,
+            'opening_stock': opening_stock,
+            'new_stock': drink.new_stock,
+            'total_stock': opening_stock + drink.new_stock - drink.damage - drink.number_sold,
+            'price': drink.price,
+            'number_sold': drink.number_sold,
+            'damage': drink.damage,
+            'amount_sold': drink.number_sold * drink.price,
+            'closing_stock': closing_stock,
+            'date': drink.date
+        })
+        prev_closing_stock = closing_stock
+    
     return render(request, 'drink_list.html', context)
+
+
 
 def drink_detail(request, pk):
     drink = get_object_or_404(Drink, pk=pk)

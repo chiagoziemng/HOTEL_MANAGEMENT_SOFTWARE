@@ -60,6 +60,25 @@
               <td colspan="6">No sales found.</td>
             </tr>
           {% endfor %}
+          <tr>
+            <td colspan="6"><strong>Total Sales by Mode of Payment</strong></td>
+          </tr>
+          <tr>
+            <td colspan="5">POS Sales:</td>
+            <td>₦{{ pos_sales }}</td>
+          </tr>
+          <tr>
+            <td colspan="5">TRANSFER Sales:</td>
+            <td>₦{{ transfer_sales }}</td>
+          </tr>
+          <tr>
+            <td colspan="5">CASH Sales:</td>
+            <td>₦{{ cash_sales }}</td>
+          </tr>
+          <tr>
+            <td colspan="5">DEBT Sales:</td>
+            <td>₦{{ debt_sales }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
