@@ -4,7 +4,7 @@ from django.db.models.functions import TruncDate
 from django.shortcuts import render, get_object_or_404, redirect
 
 from django.utils import timezone
-
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 
 import datetime
@@ -13,7 +13,7 @@ from .models import Drink, Sale
 from .forms import DrinkForm, SaleForm
 
 
-
+@login_required
 def sale_report(request):
     # Set default date range to past week
     # Get today's date and use it as the default date for filtering
@@ -78,7 +78,7 @@ def sale_report(request):
 
     return render(request, 'sale_report.html', context)
 
-
+@login_required
 def sale_list(request):
     sales = Sale.objects.all()
     context = {
@@ -86,7 +86,7 @@ def sale_list(request):
     }
     return render(request, 'sale_list.html', context)
 
-
+@login_required
 def sale_create(request):
     if request.method == 'POST':
         form = SaleForm(request.POST)
@@ -104,7 +104,7 @@ def sale_create(request):
         form = SaleForm(instance=Sale())
     return render(request, 'sale_create.html', {'form': form})
 
-
+@login_required
 def sale_update(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
     if request.method == 'POST':
@@ -119,7 +119,7 @@ def sale_update(request, pk):
     else:
         form = SaleForm(instance=sale)
     return render(request, 'sale_update.html', {'form': form, 'sale': sale})
-
+@login_required
 def sale_delete(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
     if request.method == 'POST':
@@ -136,7 +136,7 @@ def sale_delete(request, pk):
 
 
 # DRINK INVENTORY
-
+@login_required
 def drink_list_by_date(request, year, month, day):
     target_date = date(year, month, day)
     drinks = Drink.objects.filter(date_created__date=target_date).order_by('-date_created')
@@ -147,7 +147,7 @@ def drink_list_by_date(request, year, month, day):
     }
     return render(request, 'drink_list_by_date.html', context)
 
-
+@login_required
 def drink_list(request):
     today = datetime.date.today()
     drinks = Drink.objects.filter(date_created__date=today).annotate(date=TruncDate('date_created')).order_by('-date')
@@ -204,11 +204,11 @@ def drink_list(request):
     return render(request, 'drink_list.html', context)
 
 
-
+@login_required
 def drink_detail(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     return render(request, 'drink_detail.html', {'drink': drink})
-
+@login_required
 def drink_create(request):
     if request.method == 'POST':
         form = DrinkForm(request.POST, request.FILES)
@@ -223,7 +223,7 @@ def drink_create(request):
     return render(request, 'drink_create.html', {'form': form})
 
 
-
+@login_required
 def drink_update(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     if request.method == 'POST':
@@ -234,7 +234,7 @@ def drink_update(request, pk):
     else:
         form = DrinkForm(instance=drink)
     return render(request, 'drink_update.html', {'form': form})
-
+@login_required
 def drink_delete(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     if request.method == 'POST':
