@@ -21,13 +21,13 @@
             {% comment %} <li {% if section == "dashboard" %}class="selected"{% endif %}>
                 <a href="{% url 'dashboard' %}"> My dashboard</a>
             </li> {% endcomment %}
+            <li {% if section == "drink_list" %}class="selected"{% endif %}>
+                <a href="{% url 'drink_list' %}">Stock</a>
+            </li>
             <li {% if section == "sale_list" %}class="selected"{% endif %}>
                 <a href="{% url 'sale_list' %}">Sales </a>
             </li>
             {% if request.user.is_staff %}
-            <li {% if section == "drink_list" %}class="selected"{% endif %}>
-                <a href="{% url 'drink_list' %}">Stock</a>
-            </li>
             <li {% if section == "sale_report" %}class="selected"{% endif %}>
                 <a href="{% url 'sale_report' %}">Sale Report</a>
             </li> 

@@ -3,9 +3,11 @@
 {% block content %}
   <div class="container">
     <h1 class="my-4">Stock List - {{ drinks.0.date }}</h1>
+    {% if request.user.is_staff %}
     <div class="mb-3">
       <a href="{% url 'drink_create' %}" class="btn btn-primary">Add Drink</a>
     </div>
+    {% endif %}
     <table class="table table-bordered">
       <thead class="thead-light">
         <tr>
@@ -19,7 +21,9 @@
           <th>Damage</th>
           <th>Amount Sold</th>
           <th>Closing Stock</th>
+          {% if request.user.is_staff %}
           <th></th>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -39,11 +43,13 @@
             <td>{{ drink.damage }}</td>
             <td>{{ drink.amount_sold }}</td>
             <td>{{ drink.closing_stock }}</td>
+            {% if request.user.is_staff %}
             <td>
               {% if drink.id %}
                 <a href="{% url 'drink_detail' drink.id %}" class="btn btn-sm btn-secondary">View</a>
               {% endif %}
             </td>
+            {% endif %}
           </tr>
           {% empty %}
         <tr>
