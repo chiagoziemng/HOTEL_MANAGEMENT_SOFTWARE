@@ -19,7 +19,7 @@ from django.shortcuts import render
 from .models import Drink
 
 
-
+@login_required
 def drink_list(request):
     category_filter = request.GET.get('category', None)
     stock_filter = request.GET.get('stock', None)
