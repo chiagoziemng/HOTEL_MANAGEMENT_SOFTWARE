@@ -1,199 +1,73 @@
-from datetime import datetime, timedelta, date
-import datetime
-from django.db.models.functions import TruncDate
 from django.shortcuts import render, get_object_or_404, redirect
-
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Sum
 
-import datetime
-
-from .models import Drink, Sale
-from .forms import DrinkForm, SaleForm
-
-
-@login_required
-def sale_report(request):
-    # Set default date range to past week
-    # Get today's date and use it as the default date for filtering
-    today = timezone.now().date()
-    week_ago = today - timedelta(days=7)
-    date_from = request.GET.get('date_from', week_ago)
-    date_to = request.GET.get('date_to', today)
-
-    # Validate date format
-    try:
-        date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d').date()
-    except (TypeError, ValueError):
-        date_from = today
-    try:
-        date_to = datetime.datetime.strptime(date_to, '%Y-%m-%d').date()
-    except (TypeError, ValueError):
-        date_to = today
-
-    # Filter sales by date range
-    sales = Sale.objects.filter(date_created__date__range=[date_from, date_to])
-
-    # Calculate total sales for the selected date range
-    total_sales = sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
-
-    # Get total sales for each mode of payment
-    pos_sales = sales.filter(mode_of_payment='POS').aggregate(Sum('total_price'))['total_price__sum'] or 0
-    transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
-    cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
-    debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
-
-    context = {
-        'sales': sales,
-        'total_sales': total_sales,
-        'date_from': date_from,
-        'date_to': date_to,
-        'pos_sales': pos_sales,
-        'transfer_sales': transfer_sales,
-        'cash_sales': cash_sales,
-        'debt_sales': debt_sales
-        
-    }
-
-    if request.method == 'POST':
-        date_filter = request.POST.get('date_filter')
-        if date_filter:
-            # Filter sales by selected date
-            sales = Sale.objects.filter(date_created__date=date_filter)
-            total_sales = sales.aggregate(Sum('total_price'))['total_price__sum'] or 0
-            pos_sales = sales.filter(mode_of_payment='POS').aggregate(Sum('total_price'))['total_price__sum'] or 0
-            transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
-            cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
-            debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
-
-            context.update({
-                'sales': sales,
-                'total_sales': total_sales,
-                'pos_sales': pos_sales,
-                'transfer_sales': transfer_sales,
-                'cash_sales': cash_sales,
-                'debt_sales': debt_sales,
-                'date_filter': date_filter
-            })
-
-    return render(request, 'sale_report.html', context)
-
-@login_required
-def sale_list(request):
-    sales = Sale.objects.all()
-    context = {
-        'sales': sales
-        
-    }
-    return render(request, 'sale_list.html', context)
-
-@login_required
-def sale_create(request):
-    if request.method == 'POST':
-        form = SaleForm(request.POST)
-        if form.is_valid():
-            sale = form.save(commit=False)
-            if sale.mode_of_payment == 'DEBT':
-                sale.name_or_room_number = request.POST.get('name_or_room_number')
-            sale.save()
-            drink = sale.drink
-            drink.number_sold += sale.quantity
-            drink.total_stock -= sale.quantity
-            drink.save()
-            return redirect('sale_list')
-    else:
-        form = SaleForm(instance=Sale())
-    return render(request, 'sale_create.html', {'form': form})
-
-@login_required
-def sale_update(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    if request.method == 'POST':
-        form = SaleForm(request.POST, instance=sale)
-        if form.is_valid():
-            new_sale = form.save()
-            drink = new_sale.drink
-            drink.number_sold += new_sale.quantity - sale.quantity
-            drink.total_stock -= new_sale.quantity - sale.quantity
-            drink.save()
-            return redirect('sale_list')
-    else:
-        form = SaleForm(instance=sale)
-    return render(request, 'sale_update.html', {'form': form, 'sale': sale})
-@login_required
-def sale_delete(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    if request.method == 'POST':
-        drink = sale.drink
-        drink.number_sold -= sale.quantity
-        drink.total_stock += sale.quantity
-        drink.save()
-        sale.delete()
-        return redirect('sale_list')
-    return render(request, 'sale_confirm_delete.html', {'sale': sale})
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import get_template
+import csv
 
 
 
 
+from .models import Drink
+from .forms import DrinkForm
+from .utils import render_to_pdf
 
-# DRINK INVENTORY
-@login_required
-def drink_list_by_date(request, year, month, day):
-    # Create a date object from the year, month, and day parameters
-    target_date = date(year, month, day)
-    
-    # Fetch all the drinks that were created on the target date
-    drinks = Drink.objects.filter(date_created__date=target_date).order_by('-date_created')
-    
-    # Create a context dictionary with the drinks and target date
+
+from django.shortcuts import render
+from .models import Drink
+
+
+
+def drink_list(request):
+    category_filter = request.GET.get('category', None)
+    stock_filter = request.GET.get('stock', None)
+    categories = Drink.CATEGORY_CHOICES
+
+    drinks = Drink.objects.all()
+    if category_filter:
+        drinks = drinks.filter(category=category_filter)
+    if stock_filter:
+        # filter by stock, excluding drinks with no stock
+        drinks = drinks.exclude(stock=None).filter(Q(stock__lte=10) if stock_filter == 'low' else Q(stock__gt=10))
+
+    paginator = Paginator(drinks, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if 'export_pdf' in request.GET:
+        template = get_template('drink_pdf.html')
+        context = {'drinks': drinks}
+        html = template.render(context)
+        pdf = render_to_pdf('drink_pdf.html', context)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = "drink_list_%s.pdf" % page_number
+            content = "inline; filename='%s'" % filename
+            download = request.GET.get("download")
+            if download:
+                content = "attachment; filename='%s'" % filename
+            response['Content-Disposition'] = content
+            return response
+    elif 'export_csv' in request.GET:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="drink_list.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'Category', 'total_stock'])
+        for drink in drinks:
+            writer.writerow([drink.name, drink.get_category_display(), drink.total_stock])
+        return response
+
     context = {
         'drinks': drinks,
-        'target_date': target_date,
+        'page_obj': page_obj,
+        'category_filter': category_filter,
+        'stock_filter': stock_filter,
+        'categories': categories,
     }
-    
-    # Render the drink_list_by_date.html template with the context dictionary
-    return render(request, 'drink_list_by_date.html', context)
-
-
-
-@login_required
-def drink_list(request):
-    today = datetime.date.today()
-    drinks = Drink.objects.filter(date_created__date=today).annotate(date=TruncDate('date_created')).order_by('-date')
-
-    context = {
-        'drinks': [],
-        'previous_date': today - datetime.timedelta(days=1),
-    }
-
-    # Today's stock list
-    for drink in drinks:
-        prev_closing_stock = 0
-        prev_day_drinks = Drink.objects.filter(name=drink.name, date_created__date=context['previous_date']).order_by('-date_created').first()
-        if prev_day_drinks is not None:
-            prev_closing_stock = prev_day_drinks.closing_stock
-        opening_stock = prev_closing_stock + drink.opening_stock
-        closing_stock = opening_stock + drink.new_stock - drink.damage - drink.number_sold
-        context['drinks'].append({
-            'id': drink.id,
-            'name': drink.name,
-            'image': drink.image,
-            'opening_stock': opening_stock,
-            'new_stock': drink.new_stock,
-            'total_stock': opening_stock + drink.new_stock - drink.damage - drink.number_sold,
-            'price': drink.price,
-            'number_sold': drink.number_sold,
-            'damage': drink.damage,
-            'amount_sold': drink.number_sold * drink.price,
-            'closing_stock': closing_stock,
-            'date': drink.date
-        })
-
     return render(request, 'drink_list.html', context)
-
-
+# DRINK INVENTORY
 
 @login_required
 def drink_detail(request, pk):

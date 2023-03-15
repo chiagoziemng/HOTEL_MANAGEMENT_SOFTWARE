@@ -3,3 +3,4 @@ from .models import *
 
 admin.site.register(Drink)
 admin.site.register(Sale)
+admin.site.register(Debt)

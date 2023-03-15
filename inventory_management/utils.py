@@ -1,6 +1,24 @@
 from django.core.exceptions import ValidationError
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 from django.utils.deconstruct import deconstructible
 from PIL import Image
+
+def render_to_pdf(template_path, context={}):
+    template = get_template(template_path)
+    html = template.render(context)
+    result = BytesIO()
+
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="drink_stock.pdf"'
+        return response
+
+    return HttpResponse('Error rendering PDF', status=400)
 
 
 @deconstructible

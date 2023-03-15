@@ -1,62 +1,128 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="container">
-    <h1 class="my-4">Stock List - {{ drinks.0.date }}</h1>
-    {% if request.user.is_staff %}
-    <div class="mb-3">
-      <a href="{% url 'drink_create' %}" class="btn btn-primary">Add Drink</a>
+  <div class="container mt-5">
+    <h1 class="text-center mb-5">Stock</h1>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <form method="get" action="{% url 'drink_list' %}">
+          <div class="input-group">
+            <select name="category" class="form-control">
+              <option value="" {% if not category_filter %}selected{% endif %}>All Categories</option>
+              {% for category in categories %}
+                  <option value="{{ category.0 }}" {% if category_filter == category.0 %}selected{% endif %}>{{ category.1 }}</option>
+              {% endfor %}
+          </select>          
+            <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Filter</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-8 text-end mb-3">
+        <a class="btn btn-success" href="{% url 'drink_create' %}">
+          <i class="fas fa-plus-circle"></i> Add Drink
+        </a>
+        
+        <a class="btn btn-secondary" href="{% url 'drink_list' %}?export_pdf=1{% if category_filter %}&category={{ category_filter }}{% endif %}"><i class="fa fa-file-pdf-o"></i> Download PDF</a>
+        <a class="btn btn-secondary" href="{% url 'drink_list' %}?export_csv=1{% if category_filter %}&category={{ category_filter }}{% endif %}"><i class="fa fa-file-excel-o"></i> Download CSV</a>
+      </div>
     </div>
-    {% endif %}
-    <table class="table table-bordered">
-      <thead class="thead-light">
-        <tr>
-          <th>Name</th>
-          <th>Image</th>
-          <th>Opening Stock</th>
-          <th>New Stock</th>
-          <th>Total Stock</th>
-          <th>Price</th>
-          <th>Number Sold</th>
-          <th>Damage</th>
-          <th>Amount Sold</th>
-          <th>Closing Stock</th>
-          {% if request.user.is_staff %}
-          <th></th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for drink in drinks %}
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
           <tr>
-            <td>{{ drink.name }}</td>
-            {% if drink.image %}
-              <td><img src="{{ drink.image.url }}" alt="{{ drink.name }}" width="100" /></td>
-            {% else %}
-              <td>No Image</td>
-            {% endif %}
-            <td>{{ drink.opening_stock }}</td>
-            <td>{{ drink.new_stock }}</td>
-            <td>{{ drink.total_stock }}</td>
-            <td>₦{{ drink.price }}</td>
-            <td>{{ drink.number_sold }}</td>
-            <td>{{ drink.damage }}</td>
-            <td>{{ drink.amount_sold }}</td>
-            <td>{{ drink.closing_stock }}</td>
-            {% if request.user.is_staff %}
-            <td>
-              {% if drink.id %}
-                <a href="{% url 'drink_detail' drink.id %}" class="btn btn-sm btn-secondary">View</a>
-              {% endif %}
-            </td>
-            {% endif %}
+            <th>S/N</th>
+            <th>Name</th>
+            <th>Opening Stock</th>
+            <th>New Stock</th>
+            <th>Total Stock</th>
+            <th>Price</th>
+            <th>Number Sold</th>
+            <th>Damage</th>
+            <th>Amount Sold</th>
+            <th>Closing Stock</th>
+            <th>Actions</th>
           </tr>
+        </thead>
+        <tbody>
+          {% for drink in page_obj %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ drink.name|capfirst  }}</td>
+              <td>{{ drink.opening_stock }}</td>
+              <td>{{ drink.new_stock }}</td>
+              <td>{{ drink.total_stock }}</td>
+              <td>{{ drink.price }}</td>
+              <td>{{ drink.number_sold }}</td>
+              <td>{{ drink.damage }}</td>
+              <td>{{ drink.amount_sold }}</td>
+              <td>{{ drink.closing_stock }}</td>
+              <td>
+                <a class="btn btn-primary" href="{% url 'drink_detail' drink.pk %}">
+                    <i class="fas fa-eye" ></i>
+                </a>
+            </td>
+            
+            
+            </tr>
           {% empty %}
-        <tr>
-          <td colspan="4">No drinks found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+            <tr>
+              <td colspan="10" class="text-center">No drinks found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="pagination-section">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if category_filter %}&category={{ category_filter }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if category_filter %}&category={{ category_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if category_filter %}&category={{ category_filter }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('.export').on('click', function (e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            window.location.href = url + window.location.search;
+        });
+    });
+</script>
 {% endblock %}
