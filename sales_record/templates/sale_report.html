@@ -34,7 +34,7 @@
  <div class="row">
     <div class="col-md-12">
       {% if sales %}
-      <a href="{% url 'sale_report' %}?{{ request.GET.urlencode }}&download_pdf=1" class="btn btn-primary">Download PDF</a>
+      <a href="{% url 'sale_report' %}?{{ request.GET.urlencode }}&download_pdf=1" class="btn btn-primary"> <i class="fa fa-file-pdf-o"></i> Download PDF</a>
     {% endif %}
     </div>
   </div> 

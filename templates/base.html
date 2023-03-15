@@ -28,10 +28,10 @@
             <li {% if section == "sale_list" %}class="selected"{% endif %}>
                 <a href="{% url 'sale_list' %}">Sales </a>
             </li>
+            {% if request.user.is_staff %}
             <li {% if section == "sale_list" %}class="selected"{% endif %}>
                 <a href="{% url 'debt_list' %}">Debtors </a>
             </li>
-            {% if request.user.is_staff %}
             <li {% if section == "sale_report" %}class="selected"{% endif %}>
                 <a href="{% url 'sale_report' %}">Sale Report</a>
             </li> 
