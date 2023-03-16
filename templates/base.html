@@ -23,17 +23,20 @@
                     <a href="{% url 'dashboard' %}"> My dashboard</a>
                 </li> {% endcomment %}
                 <li {% if section == "drink_list" %}class="selected"{% endif %}>
-                    <a href="{% url 'drink_list' %}">Stock</a>
+                    <a href="{% url 'drink_list' %}">  <i class="fas fa-box"></i> Stock</a>
                 </li>
                 <li {% if section == "sale_list" %}class="selected"{% endif %}>
-                    <a href="{% url 'sale_list' %}">Sales </a>
+                    <a href="{% url 'sale_list' %}">
+                        <i class="fas fa-chart-line"></i> Sales
+                        
+                    </a>
                 </li>
                 {% if request.user.is_staff %}
                 <li {% if section == "debt_list" %}class="selected"{% endif %}>
-                    <a href="{% url 'debt_list' %}">Debtors </a>
+                    <a href="{% url 'debt_list' %}"><i class="fas fa-hand-holding-usd"></i> Debtors </a>
                 </li>
                 <li {% if section == "sale_report" %}class="selected"{% endif %}>
-                    <a href="{% url 'sale_report' %}">Sale Report</a>
+                    <a href="{% url 'sale_report' %}"><i class="fas fa-chart-bar"></i> Sale Report</a>
                 </li> 
                 {% endif %}
     
