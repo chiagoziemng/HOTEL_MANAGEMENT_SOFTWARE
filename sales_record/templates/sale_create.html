@@ -36,6 +36,15 @@
         <div class="invalid-feedback d-block">{{ form.debtor_name.errors }}</div>
       {% endif %}      
       </div>
+      {% elif form.mode_of_payment.value == 'COMPLIMENTARY' %}
+      <div class="form-group">
+        {{ form.customer_name.label_tag }}
+        {{ form.customer_name }}
+    
+        {% if form.instance.mode_of_payment == 'COMPLIMENTARY' and form.customer_name.errors %}
+        <div class="invalid-feedback d-block">{{ form.customer_name.errors }}</div>
+      {% endif %}      
+      </div>
       {% endif %}
       <button type="submit" class="btn btn-primary mt-4">Create Sale</button>
     </form>

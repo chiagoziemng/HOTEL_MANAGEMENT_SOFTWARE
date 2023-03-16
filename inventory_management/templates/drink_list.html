@@ -22,8 +22,18 @@
           <i class="fas fa-plus-circle"></i> Add Drink
         </a>
         
-        <a class="btn btn-secondary" href="{% url 'drink_list' %}?export_pdf=1{% if category_filter %}&category={{ category_filter }}{% endif %}"><i class="fa fa-file-pdf-o"></i> Download PDF</a>
+        {% comment %} <a class="btn btn-secondary" href="{% url 'drink_list' %}?export_pdf=1{% if category_filter %}&category={{ category_filter }}{% endif %}"><i class="fa fa-file-pdf-o"></i> Download PDF</a>
         <a class="btn btn-secondary" href="{% url 'drink_list' %}?export_csv=1{% if category_filter %}&category={{ category_filter }}{% endif %}"><i class="fa fa-file-excel-o"></i> Download CSV</a>
+       {% endcomment %}
+
+       <a class="btn btn-secondary export-pdf" href="{% url 'drink_list' %}?export_pdf=1{% if category_filter %}&category={{ category_filter }}{% endif %}">
+        <i class="fa fa-file-pdf-o"></i> Download PDF
+      </a>
+      <a class="btn btn-secondary export-csv" href="{% url 'drink_list' %}?export_csv=1{% if category_filter %}&category={{ category_filter }}{% endif %}">
+        <i class="fa fa-file-excel-o"></i> Download CSV
+      </a>
+      
+      
       </div>
     </div>
     <div class="table-responsive">
@@ -51,10 +61,10 @@
               <td>{{ drink.opening_stock }}</td>
               <td>{{ drink.new_stock }}</td>
               <td>{{ drink.total_stock }}</td>
-              <td>{{ drink.price }}</td>
+              <td>₦{{ drink.price }}</td>
               <td>{{ drink.number_sold }}</td>
               <td>{{ drink.damage }}</td>
-              <td>{{ drink.amount_sold }}</td>
+              <td>₦{{ drink.amount_sold }}</td>
               <td>{{ drink.closing_stock }}</td>
               <td>
                 <a class="btn btn-primary" href="{% url 'drink_detail' drink.pk %}">
@@ -116,6 +126,25 @@
 {% endblock %}
 
 {% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('.export-pdf').on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        window.location.href = url + window.location.search;
+      });
+      $('.export-csv').on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        window.location.href = url + window.location.search;
+      });
+    });
+  </script>
+{% endblock %}
+
+
+{% comment %} {% block scripts %}
 <script>
     $(document).ready(function () {
         $('.export').on('click', function (e) {
@@ -125,4 +154,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

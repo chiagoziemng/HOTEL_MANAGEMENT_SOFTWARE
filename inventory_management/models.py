@@ -61,7 +61,8 @@ class Sale(models.Model):
         ('POS', 'POS'),
         ('TRANSFER', 'TRANSFER'),
         ('CASH', 'CASH'),
-        ('DEBT', 'DEBT')
+        ('DEBT', 'DEBT'),
+        ('COMPLIMENTARY', 'COMPLIMENTARY')
     ]
     
     date_time = models.DateTimeField(auto_now_add=True)
@@ -73,6 +74,7 @@ class Sale(models.Model):
     total_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     date_created = models.DateTimeField(auto_now_add=True)
     debtor_name = models.CharField(max_length=50, blank=True, null=True)
+    customer_name = models.CharField(max_length=50, blank=True, null=True)
     sale_date = models.DateField()
     
     def save(self, *args, **kwargs):
@@ -82,7 +84,10 @@ class Sale(models.Model):
         if self.mode_of_payment == 'DEBT':
             if self.debtor_name is None or self.debtor_name == '':
                 raise forms.ValidationError('Debtor name is required for debt transactions.')
-            
+        elif self.mode_of_payment == 'COMPLIMENTARY':
+            if self.customer_name is None or self.customer_name == '':
+                raise forms.ValidationError('A name is required for complimentary sales.')
+    
         total_stock = self.drink.opening_stock + self.drink.new_stock - self.drink.damage - self.drink.number_sold
         if total_stock < self.quantity:
             raise ValidationError('Insufficient stock for this drink.')
@@ -107,6 +112,15 @@ def create_debt(sender, instance, created, **kwargs):
             amount=instance.total_price,
             debtor_name=instance.debtor_name,
         )
+
+
+class Complimentary(models.Model):
+    name = models.CharField(max_length=50)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.sale.drink.name} - {self.sale.quantity}"
 
     
 

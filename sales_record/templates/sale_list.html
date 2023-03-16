@@ -52,7 +52,7 @@
               <td>{{ sale.drink.name|capfirst  }}</td>
               <td>₦{{ sale.price }}</td>
               <td>{{ sale.quantity }}</td>
-              <td>{{ sale.total_price }}</td>
+              <td>₦{{ sale.total_price }}</td>
               <td>{{ sale.mode_of_payment }}</td>
               {% if request.user.is_staff %}
               <td>

@@ -45,7 +45,7 @@
               {{ debt.debtor_name }}
             {% endif %}
           </td>
-          <td>{{ debt.amount }}</td>
+          <td>₦ {{ debt.amount }}</td>
           {% if status == 'cleared' %}
             <td>{{ debt.cleared_on }}</td>
           {% else %}

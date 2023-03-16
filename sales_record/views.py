@@ -53,6 +53,7 @@ def sale_report(request):
     transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
     cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
     debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
+    complimentary_sales = sales.filter(mode_of_payment='COMPLIMENTARY').aggregate(Sum('total_price'))['total_price__sum'] or 0
 
     context = {
         'sales': sales,
@@ -62,7 +63,9 @@ def sale_report(request):
         'pos_sales': pos_sales,
         'transfer_sales': transfer_sales,
         'cash_sales': cash_sales,
-        'debt_sales': debt_sales
+        'debt_sales': debt_sales,
+        'complimentary_sales': complimentary_sales,
+        'section': 'sale_report'
         
     }
 
@@ -76,6 +79,7 @@ def sale_report(request):
             transfer_sales = sales.filter(mode_of_payment='TRANSFER').aggregate(Sum('total_price'))['total_price__sum'] or 0
             cash_sales = sales.filter(mode_of_payment='CASH').aggregate(Sum('total_price'))['total_price__sum'] or 0
             debt_sales = sales.filter(mode_of_payment='DEBT').aggregate(Sum('total_price'))['total_price__sum'] or 0
+            complimentary_sales = sales.filter(mode_of_payment='COMPLIMENTARY').aggregate(Sum('total_price'))['total_price__sum'] or 0
 
 
             context.update({
@@ -85,7 +89,9 @@ def sale_report(request):
                 'transfer_sales': transfer_sales,
                 'cash_sales': cash_sales,
                 'debt_sales': debt_sales,
-                'date_filter': date_filter
+                'complimentary_sales': complimentary_sales,
+                'date_filter': date_filter,
+                
             })
 
 
@@ -102,6 +108,7 @@ def sale_report(request):
                 'transfer_sales': transfer_sales,
                 'cash_sales': cash_sales,
                 'debt_sales': debt_sales,
+                'complimentary_sales': complimentary_sales,
             }
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="sale_report.pdf"'
@@ -136,7 +143,7 @@ def debt_list(request, status=None):
     page_obj = paginator.get_page(page_number)
 
     # return render(request, 'debt_list.html', { 'page_obj': page_obj})
-    return render(request, 'debt_list.html', {'page_obj': page_obj, 'status': status, 'date': date_query, 'debts': debts,})
+    return render(request, 'debt_list.html', {'page_obj': page_obj, 'status': status, 'date': date_query, 'debts': debts,'section': 'debt_list'})
 
 
 @login_required
@@ -165,10 +172,10 @@ def sale_list(request):
     page = request.GET.get('page')
     sales = paginator.get_page(page)
     context = {
-        'sales': sales
+        'sales': sales,
+        'section': 'sale_list'
     }
     return render(request, 'sale_list.html', context)
-
 
 
 @login_required
@@ -179,6 +186,8 @@ def sale_create(request):
             sale = form.save(commit=False)
             if sale.mode_of_payment == 'DEBT':
                 sale.debtor_name = request.POST.get('debtor_name')
+            elif sale.mode_of_payment == 'COMPLIMENTARY':
+                sale.customer_name = request.POST.get('customer_name')
             sale.save()
             drink = sale.drink
             drink.number_sold += sale.quantity
@@ -188,6 +197,7 @@ def sale_create(request):
     else:
         form = SaleForm(instance=Sale())
     return render(request, 'sale_create.html', {'form': form})
+
 
 @login_required
 def sale_update(request, pk):

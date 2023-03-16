@@ -25,7 +25,7 @@ def drink_list(request):
     stock_filter = request.GET.get('stock', None)
     categories = Drink.CATEGORY_CHOICES
 
-    drinks = Drink.objects.all()
+    drinks = Drink.objects.all().order_by('name')
     if category_filter:
         drinks = drinks.filter(category=category_filter)
     if stock_filter:
@@ -65,6 +65,7 @@ def drink_list(request):
         'category_filter': category_filter,
         'stock_filter': stock_filter,
         'categories': categories,
+        'section': 'drink_list'
     }
     return render(request, 'drink_list.html', context)
 # DRINK INVENTORY

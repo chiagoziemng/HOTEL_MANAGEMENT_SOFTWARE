@@ -22,29 +22,35 @@ class DrinkForm(forms.ModelForm):
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
-        fields = ['sale_date','drink', 'quantity', 'mode_of_payment', 'debtor_name',]
+        fields = ['sale_date', 'drink', 'quantity', 'mode_of_payment', 'debtor_name', 'customer_name']
         widgets = {
             'sale_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'drink': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'mode_of_payment': forms.Select(attrs={'class': 'form-control'}),
             'debtor_name': forms.TextInput(attrs={'class': 'form-control'}),
-       
+            'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['debtor_name'].widget.attrs.update({
-            'class': 'form-control',
-        })
+        self.fields['debtor_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['customer_name'].widget.attrs.update({'class': 'form-control'})
 
     def clean(self):
         cleaned_data = super().clean()
         mode_of_payment = cleaned_data.get('mode_of_payment')
         debtor_name = cleaned_data.get('debtor_name')
+        customer_name = cleaned_data.get('customer_name')
 
         if mode_of_payment == 'DEBT' and not debtor_name:
             raise forms.ValidationError('Debtor name is required for debt transactions.')
+        elif mode_of_payment == 'COMPLIMENTARY' and not customer_name:
+            raise forms.ValidationError('Customer name is required for complimentary transactions.')
+        
+        return cleaned_data
+
+
         
 
 

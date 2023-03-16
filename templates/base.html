@@ -15,40 +15,41 @@
 
 </head>
 <body>
-<div id="header">
-    <span class="logo">Pameec Hotel Bar System</span>
-    {% if request.user.is_authenticated %}
-        <ul class="menu">
-            {% comment %} <li {% if section == "dashboard" %}class="selected"{% endif %}>
-                <a href="{% url 'dashboard' %}"> My dashboard</a>
-            </li> {% endcomment %}
-            <li {% if section == "drink_list" %}class="selected"{% endif %}>
-                <a href="{% url 'drink_list' %}">Stock</a>
-            </li>
-            <li {% if section == "sale_list" %}class="selected"{% endif %}>
-                <a href="{% url 'sale_list' %}">Sales </a>
-            </li>
-            {% if request.user.is_staff %}
-            <li {% if section == "sale_list" %}class="selected"{% endif %}>
-                <a href="{% url 'debt_list' %}">Debtors </a>
-            </li>
-            <li {% if section == "sale_report" %}class="selected"{% endif %}>
-                <a href="{% url 'sale_report' %}">Sale Report</a>
-            </li> 
-            {% endif %}
-
-
-        </ul> 
-    {% endif %}
-    <span class="user">
+    <div id="header">
+        <span class="logo">Pameec Hotel Bar System</span>
         {% if request.user.is_authenticated %}
-        Hello {{ request.user.first_name|default:request.user.username }},
-        <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}">Log-in</a>
+            <ul class="menu" style="font-size: 20px;">
+                {% comment %} <li {% if section == "dashboard" %}class="selected"{% endif %}>
+                    <a href="{% url 'dashboard' %}"> My dashboard</a>
+                </li> {% endcomment %}
+                <li {% if section == "drink_list" %}class="selected"{% endif %}>
+                    <a href="{% url 'drink_list' %}">Stock</a>
+                </li>
+                <li {% if section == "sale_list" %}class="selected"{% endif %}>
+                    <a href="{% url 'sale_list' %}">Sales </a>
+                </li>
+                {% if request.user.is_staff %}
+                <li {% if section == "debt_list" %}class="selected"{% endif %}>
+                    <a href="{% url 'debt_list' %}">Debtors </a>
+                </li>
+                <li {% if section == "sale_report" %}class="selected"{% endif %}>
+                    <a href="{% url 'sale_report' %}">Sale Report</a>
+                </li> 
+                {% endif %}
+    
+    
+            </ul> 
         {% endif %}
-    </span>
-</div>
+        <span class="user">
+            {% if request.user.is_authenticated %}
+            Hello {{ request.user.first_name|default:request.user.username }},
+            <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}">Log-in</a>
+            {% endif %}
+        </span>
+    </div>
+
 {% if messages %}
     <ul class="messages">
         {% for message in messages %}
@@ -66,7 +67,7 @@
     {% endblock %}
 </div>
 
-<footer>
+<footer class="mt-auto">
     <div class="container">
         <p>Pameec Hotel Bar System &copy; 2023</p>
         <img src="{% static 'img/oab_126x54.jpeg' %}" alt="Django Secure">
