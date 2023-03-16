@@ -32,7 +32,7 @@ def drink_list(request):
         # filter by stock, excluding drinks with no stock
         drinks = drinks.exclude(stock=None).filter(Q(stock__lte=10) if stock_filter == 'low' else Q(stock__gt=10))
 
-    paginator = Paginator(drinks, 50)
+    paginator = Paginator(drinks, 11, 1)# count from 1, 10 items per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -54,9 +54,9 @@ def drink_list(request):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="drink_list.csv"'
         writer = csv.writer(response)
-        writer.writerow(['Name', 'Category', 'total_stock'])
+        writer.writerow(['Name', 'Category', 'opening_stock', 'new_stock', 'total_stock', 'price', 'number_sold','damage', 'amount_sold', 'closing_stock'])
         for drink in drinks:
-            writer.writerow([drink.name, drink.get_category_display(), drink.total_stock])
+            writer.writerow([drink.name,  drink.get_category_display(), drink.opening_stock , drink.new_stock, drink.total_stock, drink.price,  drink.number_sold, drink.damage, drink.amount_sold, drink.closing_stock ])
         return response
 
     context = {

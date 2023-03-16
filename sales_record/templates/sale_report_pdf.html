@@ -14,7 +14,7 @@
       h1 {
         font-size: 24px;
         text-align: center;
-        margin: 30px 0;
+        margin-top: 30px;
       }
       table {
         border-collapse: collapse;
@@ -61,32 +61,37 @@
           </tr>
         {% endfor %}
         <tr class="total">
-          <td colspan="4">Total Sales:</td>
+          <td colspan="5">Total Sales:</td>
           <td>{{ total_sales }}</td>
           <td></td>
         </tr>
         <tr>
-          <td colspan="6"><strong>Total Sales by Mode of Payment</strong></td>
+          <td colspan="7"><strong>Total Sales by Mode of Payment</strong></td>
         </tr>
         <tr>
           <td colspan="5">POS Sales:</td>
           <td>{{ pos_sales }}</td>
+          <td></td>
         </tr>
         <tr>
           <td colspan="5">TRANSFER Sales:</td>
           <td>{{ transfer_sales }}</td>
+          <td></td>
         </tr>
         <tr>
           <td colspan="5">CASH Sales:</td>
           <td>{{ cash_sales }}</td>
+          <td></td>
         </tr>
         <tr>
           <td colspan="5">DEBT Sales:</td>'
           <td>{{ debt_sales }}</td>
+          <td></td>
         </tr>
         <tr>
           <td colspan="5">COMPLIMENTARY Sales:</td>
           <td>{{ complimentary_sales }}</td>
+          <td></td>
         </tr>
       </tbody>
     </table>

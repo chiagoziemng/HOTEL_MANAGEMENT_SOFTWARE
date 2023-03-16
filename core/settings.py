@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     # THIRD PATRY APP
     'bootstrap4',    
     'fontawesome_5',
+    'import_export'
 
 ]
 

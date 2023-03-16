@@ -168,7 +168,7 @@ def sale_list(request):
     end_date = request.GET.get('end_date')
     if start_date and end_date:
         sales = sales.filter(sale_date__range=[start_date, end_date])
-    paginator = Paginator(sales, 20) # Show 10 sales per page
+    paginator = Paginator(sales, 11) # Show 10 sales per page
     page = request.GET.get('page')
     sales = paginator.get_page(page)
     context = {
