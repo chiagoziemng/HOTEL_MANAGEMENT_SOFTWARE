@@ -23,6 +23,8 @@ urlpatterns = [
     path('debt_list', views.debt_list, name='debt_list'),
     path('debts/<str:status>/', views.debt_list, name='debt_list'),
     path('clear-debt/<int:pk>/', views.clear_debt, name='clear_debt'),
+    path('<int:pk>/debt_delete/', views.debt_delete, name='debt_delete'),
+
 
 
 

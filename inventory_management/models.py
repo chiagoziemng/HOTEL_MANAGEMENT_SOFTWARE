@@ -57,6 +57,13 @@ class Drink(models.Model):
 
 
 class Sale(models.Model):
+
+    POS = 'POS'
+    TRANSFER = 'TRANSFER'
+    CASH = 'CASH'
+    DEBT = 'DEBT'
+    COMPLIMENTARY = 'COMPLIMENTARY'
+
     MODE_OF_PAYMENT_CHOICES = [
         ('POS', 'POS'),
         ('TRANSFER', 'TRANSFER'),
@@ -136,9 +143,9 @@ class Debt(models.Model):
     date = models.DateField(auto_now_add=True)
     debtor_name = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Owing')
+    cleared_on = models.DateField(null=True, blank=True)
+    
     
     def __str__(self):
         return f"{self.debtor_name} - {self.amount} - {self.date} - {self.status}"
     
-
-

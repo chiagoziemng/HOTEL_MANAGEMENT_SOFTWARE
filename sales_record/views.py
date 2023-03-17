@@ -146,15 +146,31 @@ def debt_list(request, status=None):
     return render(request, 'debt_list.html', {'page_obj': page_obj, 'status': status, 'date': date_query, 'debts': debts,'section': 'debt_list'})
 
 
-@login_required
 def clear_debt(request, pk):
-    debt = get_object_or_404(Debt, pk=pk)
+    debt = Debt.objects.get(pk=pk)
+
     if request.method == 'POST':
+        cleared_on = request.POST['cleared_on']
         debt.status = 'Cleared'
-        debt.cleared_on = timezone.now()
+        debt.cleared_on = cleared_on
         debt.save()
         return redirect('debt_list')
-    return render(request, 'clear_debt.html', {'debt': debt})
+
+    context = {'debt': debt}
+    return render(request, 'clear_debt.html', context)
+
+
+@login_required
+def debt_delete(request, pk):
+    debt = get_object_or_404(Debt, pk=pk)
+    if request.method == 'POST':
+        debt.delete()
+        return redirect('debt_list')
+    return render(request, 'debt_confirm_delete.html', {'debt': debt})
+
+
+
+
 
 
 
