@@ -1,7 +1,7 @@
 from django import forms
 from .models import Drink, Sale,  Debt
 
-
+#  Defined Drink Form
 class DrinkForm(forms.ModelForm):
     class Meta:
         model = Drink
@@ -17,8 +17,7 @@ class DrinkForm(forms.ModelForm):
             
         }
 
-
-
+#  Defined Sale Form
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
@@ -51,10 +50,7 @@ class SaleForm(forms.ModelForm):
         return cleaned_data
 
 
-        
-
-
-
+#  Defined DebtForm
 class DebtForm(forms.ModelForm):
     class Meta:
         model = Debt

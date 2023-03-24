@@ -9,9 +9,6 @@ from xhtml2pdf import pisa
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-
-
-
 import datetime
 import datetime as dt
 from django.core.paginator import Paginator
@@ -19,10 +16,89 @@ from django.core.paginator import Paginator
 from inventory_management.models import Sale, Debt
 from inventory_management.forms import SaleForm
 
+# Sale & Debt Table Views and we have eight views now:    
+
+# _list : this view show all sales , it contains: Filter sales by date range, pagination.
+# _create: this view creates a new sale.
+# _update: this view updates the sale, if errors when entering the sale.
+# _delete: this view remove a sale and delete it from the Sale table.
+# sale_report: this view shows todays sales report. it contains: Filter sales by date range, Calculate total sales, Get total sales for each mode of payment and Generate PDF.
 
 
 
+# debt_list : this view show all debt , it contains: Filter sales by date range, pagination.
+# clear_debt: this view clear debts.
+# debt_delete: this view remove a debt and delete it from the debt table.
 
+
+@login_required
+def sale_list(request):
+    sales = Sale.objects.all().order_by('-sale_date')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        sales = sales.filter(sale_date__range=[start_date, end_date])
+    paginator = Paginator(sales, 11) # Show 10 sales per page
+    page = request.GET.get('page')
+    sales = paginator.get_page(page)
+    context = {
+        'sales': sales,
+        'section': 'sale_list'
+    }
+    return render(request, 'sale_list.html', context)
+
+#                                                              sale_create              #2
+@login_required
+def sale_create(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            sale = form.save(commit=False)
+            if sale.mode_of_payment == 'DEBT':
+                sale.debtor_name = request.POST.get('debtor_name')
+            elif sale.mode_of_payment == 'COMPLIMENTARY':
+                sale.customer_name = request.POST.get('customer_name')
+            sale.save()
+            drink = sale.drink
+            drink.number_sold += sale.quantity
+            drink.total_stock -= sale.quantity
+            drink.save()
+            return redirect('sale_list')
+    else:
+        form = SaleForm(instance=Sale())
+    return render(request, 'sale_create.html', {'form': form})
+
+#                                                         sale_update                       #3
+@login_required
+def sale_update(request, pk):
+    sale = get_object_or_404(Sale, pk=pk)
+    if request.method == 'POST':
+        form = SaleForm(request.POST, instance=sale)
+        if form.is_valid():
+            new_sale = form.save()
+            drink = new_sale.drink
+            drink.number_sold += new_sale.quantity - sale.quantity
+            drink.total_stock -= new_sale.quantity - sale.quantity
+            drink.save()
+            return redirect('sale_list')
+    else:
+        form = SaleForm(instance=sale)
+    return render(request, 'sale_update.html', {'form': form, 'sale': sale})
+
+#                                                       sale_delete                 #4
+@login_required
+def sale_delete(request, pk):
+    sale = get_object_or_404(Sale, pk=pk)
+    if request.method == 'POST':
+        drink = sale.drink
+        drink.number_sold -= sale.quantity
+        drink.total_stock += sale.quantity
+        drink.save()
+        sale.delete()
+        return redirect('sale_list')
+    return render(request, 'sale_confirm_delete.html', {'sale': sale})
+
+#                                                           sale_report             #5
 @login_required
 def sale_report(request):
     # Set default date range to past week
@@ -122,8 +198,7 @@ def sale_report(request):
     return render(request, 'sale_report.html', context)
 
 
-
-
+#                                                           debt_list                           #6
 @login_required
 def debt_list(request, status=None):
     if status == 'cleared':
@@ -142,10 +217,9 @@ def debt_list(request, status=None):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # return render(request, 'debt_list.html', { 'page_obj': page_obj})
     return render(request, 'debt_list.html', {'page_obj': page_obj, 'status': status, 'date': date_query, 'debts': debts,'section': 'debt_list'})
 
-
+#                                                   clear_debt                                  #7
 def clear_debt(request, pk):
     debt = Debt.objects.get(pk=pk)
 
@@ -159,7 +233,7 @@ def clear_debt(request, pk):
     context = {'debt': debt}
     return render(request, 'clear_debt.html', context)
 
-
+#                                                   debt_delete                                 #8
 @login_required
 def debt_delete(request, pk):
     debt = get_object_or_404(Debt, pk=pk)
@@ -167,77 +241,3 @@ def debt_delete(request, pk):
         debt.delete()
         return redirect('debt_list')
     return render(request, 'debt_confirm_delete.html', {'debt': debt})
-
-
-
-
-
-
-
-
-
-
-@login_required
-def sale_list(request):
-    sales = Sale.objects.all().order_by('-sale_date')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    if start_date and end_date:
-        sales = sales.filter(sale_date__range=[start_date, end_date])
-    paginator = Paginator(sales, 11) # Show 10 sales per page
-    page = request.GET.get('page')
-    sales = paginator.get_page(page)
-    context = {
-        'sales': sales,
-        'section': 'sale_list'
-    }
-    return render(request, 'sale_list.html', context)
-
-
-@login_required
-def sale_create(request):
-    if request.method == 'POST':
-        form = SaleForm(request.POST)
-        if form.is_valid():
-            sale = form.save(commit=False)
-            if sale.mode_of_payment == 'DEBT':
-                sale.debtor_name = request.POST.get('debtor_name')
-            elif sale.mode_of_payment == 'COMPLIMENTARY':
-                sale.customer_name = request.POST.get('customer_name')
-            sale.save()
-            drink = sale.drink
-            drink.number_sold += sale.quantity
-            drink.total_stock -= sale.quantity
-            drink.save()
-            return redirect('sale_list')
-    else:
-        form = SaleForm(instance=Sale())
-    return render(request, 'sale_create.html', {'form': form})
-
-
-@login_required
-def sale_update(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    if request.method == 'POST':
-        form = SaleForm(request.POST, instance=sale)
-        if form.is_valid():
-            new_sale = form.save()
-            drink = new_sale.drink
-            drink.number_sold += new_sale.quantity - sale.quantity
-            drink.total_stock -= new_sale.quantity - sale.quantity
-            drink.save()
-            return redirect('sale_list')
-    else:
-        form = SaleForm(instance=sale)
-    return render(request, 'sale_update.html', {'form': form, 'sale': sale})
-@login_required
-def sale_delete(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    if request.method == 'POST':
-        drink = sale.drink
-        drink.number_sold -= sale.quantity
-        drink.total_stock += sale.quantity
-        drink.save()
-        sale.delete()
-        return redirect('sale_list')
-    return render(request, 'sale_confirm_delete.html', {'sale': sale})

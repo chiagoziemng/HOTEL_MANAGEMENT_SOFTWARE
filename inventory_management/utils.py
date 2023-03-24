@@ -6,6 +6,8 @@ from xhtml2pdf import pisa
 from django.utils.deconstruct import deconstructible
 from PIL import Image
 
+# PDF Handler
+
 def render_to_pdf(template_path, context={}):
     template = get_template(template_path)
     html = template.render(context)
@@ -20,6 +22,8 @@ def render_to_pdf(template_path, context={}):
 
     return HttpResponse('Error rendering PDF', status=400)
 
+
+# Image Handler
 
 @deconstructible
 class ImageValidator:

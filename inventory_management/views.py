@@ -8,8 +8,6 @@ from django.template.loader import get_template
 import csv
 
 
-
-
 from .models import Drink
 from .forms import DrinkForm
 from .utils import render_to_pdf
@@ -18,6 +16,13 @@ from .utils import render_to_pdf
 from django.shortcuts import render
 from .models import Drink
 
+# Drink Table Views and we have five views now:
+
+# _list : this view show all drinks , it contains: Filter drink by category, pagination and Generate PDF & CSV
+# _detail : this view shows detail of a drink 
+# _create: this view creates a new drink
+# _update: this view updates the drink 
+# _delete: this view remove a drink and delete it from the drink table
 
 @login_required
 def drink_list(request):
@@ -68,12 +73,14 @@ def drink_list(request):
         'section': 'drink_list'
     }
     return render(request, 'drink_list.html', context)
-# DRINK INVENTORY
 
+#                                         drink_details                                 #2
 @login_required
 def drink_detail(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
     return render(request, 'drink_detail.html', {'drink': drink})
+
+#                                          drink_create                                     #3
 @login_required
 def drink_create(request):
     if request.method == 'POST':
@@ -88,7 +95,7 @@ def drink_create(request):
         form = DrinkForm()
     return render(request, 'drink_create.html', {'form': form})
 
-
+#                                           drink_update                            #4
 @login_required
 def drink_update(request, pk):
     drink = get_object_or_404(Drink, pk=pk)
@@ -100,6 +107,8 @@ def drink_update(request, pk):
     else:
         form = DrinkForm(instance=drink)
     return render(request, 'drink_update.html', {'form': form})
+
+#                                               drink_delete                        #5
 @login_required
 def drink_delete(request, pk):
     drink = get_object_or_404(Drink, pk=pk)

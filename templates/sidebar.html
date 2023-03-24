@@ -1,0 +1,98 @@
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    <div class="app-brand demo">
+      <a href="index.html" class="app-brand-link">
+        <span class="app-brand-text demo menu-text fw-bolder ms-2">Pameec</span>
+      </a>
+
+      <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+        <i class="bx bx-chevron-left bx-sm align-middle"></i>
+      </a>
+    </div>
+
+    <div class="menu-inner-shadow"></div>
+
+    <ul class="menu-inner py-1">
+      <!-- Dashboard -->
+      <li class="menu-item active" {% if section == "dashboard" %}{% endif %}>
+        <a href="{% url 'dashboard' %}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-home-circle"></i>
+          <div data-i18n="Analytics">Dashboard</div>
+        </a>
+      </li>
+
+      <li class="menu-header small text-uppercase">
+        <span class="menu-header-text">System</span>
+      </li>
+      <li class="menu-item">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="fa fa-beer" aria-hidden="true"></i>
+
+          <div data-i18n="Account Settings">Bar</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item" {% if section == "drink_list" %}class="selected"{% endif %}>
+            <a href="{% url 'drink_list' %}" class="menu-link">
+              <div data-i18n="Account">  <i class="fas fa-box"></i> Stock</div>
+            </a>
+          </li>
+          <li class="menu-item" {% if section == "sale_list" %}class="selected"{% endif %}>
+            <a href="{% url 'sale_list' %}" class="menu-link">
+              <div data-i18n="Notifications"><i class="fas fa-chart-line"></i> Sale</div>
+            </a>
+          </li>
+          {% if request.user.is_staff %}
+          <li class="menu-item" {% if section == "debt_list" %}class="selected"{% endif %}>
+            <a href="{% url 'debt_list' %}" class="menu-link">
+              <div data-i18n="Connections"><i class="fas fa-hand-holding-usd"></i> Debtors</div>
+            </a>
+          </li>
+          <li class="menu-item" {% if section == "sale_report" %}class="selected"{% endif %}>
+            <a href="{% url 'sale_report' %}" class="menu-link">
+              <div data-i18n="Connections"><i class="fas fa-chart-bar"></i> Sale Report</div>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </li>
+      <li class="menu-item">
+        <button href="javascript:void(0);" class="menu-link menu-toggle"  disabled>
+          <i class='bx bx-lock-alt'></i>
+          <div data-i18n="Authentications">Restaurant</div>
+        </button>
+        <ul class="menu-sub">
+          <li class="menu-item">
+            <a href="auth-login-basic.html" class="menu-link" target="_blank">
+              <div data-i18n="Basic">Login</div>
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li class="menu-item" >
+        <button href="javascript:void(0);" class="menu-link menu-toggle"  disabled>
+          <i class='bx bx-lock-alt'></i>
+          <div data-i18n="Misc">Expense Manager</div>
+        </button>
+        <ul class="menu-sub">
+          <li class="menu-item">
+            <a href="pages-misc-error.html" class="menu-link">
+              <div data-i18n="Error">Error</div>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+
+        <!-- Log Out -->
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Support</span></li>
+        <li class="menu-item">
+          <a
+            href="{% url 'logout' %}"
+            target="_blank"
+            class="menu-link"
+          >
+          <i class="bx bx-power-off me-2"></i>
+            <div data-i18n="Support">Log Out</div>
+          </a>
+        </li>
+    </ul>
+  </aside>

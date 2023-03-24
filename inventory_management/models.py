@@ -1,28 +1,24 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.db.models.signals import pre_save,  post_save
+from django.db.models.signals import  post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
+#  Defined Drink Table                      #1
 
 class Drink(models.Model):
-
     CATEGORY_CHOICES = [
         ('Soft-drink/Non-alcoholic', 'Soft-drink/Non-alcoholic'),
         ('Beer', 'Beer'),
         ('Blended-spirit/Whiskey/Wine', 'Blended-spirit/Whiskey/Wine'),
         ('Others', 'Others')
     ]
-
-
-
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='Others')
     image = models.ImageField(upload_to='drinks', default='drinks/default.png' ,blank=True, null=True)
     opening_stock = models.IntegerField(default=0)
     new_stock = models.IntegerField(default=0)
     total_stock = models.IntegerField(default=0)
-    total_sales = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Add a new field called 'total_sales'
+    total_sales = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Added a new field called 'total_sales'
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     number_sold = models.IntegerField(default=0)
@@ -31,20 +27,12 @@ class Drink(models.Model):
     closing_stock = models.IntegerField(default=0)
     date_created = models.DateTimeField(auto_now_add=True)
     
-
-
     def __str__(self):
         return self.name
     
 
     class Meta:
         verbose_name_plural = 'Drinks'
-
-# @receiver(pre_save, sender=Drink)
-# def update_drink_stock(sender, instance, **kwargs):
-#     instance.total_stock = instance.opening_stock + instance.new_stock - instance.damage - instance.number_sold
-#     instance.amount_sold = instance.number_sold * instance.price
-#     instance.closing_stock = instance.total_stock - instance.number_sold
 
     def save(self, *args, **kwargs):
         self.total_stock = self.opening_stock + self.new_stock
@@ -55,9 +43,9 @@ class Drink(models.Model):
 
 
 
+#  Defined Sale Table                                #2
 
 class Sale(models.Model):
-
     POS = 'POS'
     TRANSFER = 'TRANSFER'
     CASH = 'CASH'
@@ -71,7 +59,6 @@ class Sale(models.Model):
         ('DEBT', 'DEBT'),
         ('COMPLIMENTARY', 'COMPLIMENTARY')
     ]
-    
     date_time = models.DateTimeField(auto_now_add=True)
     drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
@@ -97,17 +84,14 @@ class Sale(models.Model):
     
         total_stock = self.drink.opening_stock + self.drink.new_stock - self.drink.damage - self.drink.number_sold
         if total_stock < self.quantity:
-            raise ValidationError('Insufficient stock for this drink.')
-        
+            raise ValidationError('Insufficient stock for this drink.')       
         
         super().save(*args, **kwargs)
-
 
     def clean(self):
         # Check if the drink has enough stock to fulfill the sale
         if self.quantity > self.drink.total_stock:
             raise ValidationError('Insufficient stock for this drink.')
-
     
     def __str__(self):
         return f"{self.drink.name} - {self.quantity} - {self.total_price}"
@@ -121,17 +105,7 @@ def create_debt(sender, instance, created, **kwargs):
         )
 
 
-class Complimentary(models.Model):
-    name = models.CharField(max_length=50)
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.name} - {self.sale.drink.name} - {self.sale.quantity}"
-
-    
-
-
+#  Defined Debt Table                           #3
 
 class Debt(models.Model):
     STATUS_CHOICES = [
@@ -149,3 +123,14 @@ class Debt(models.Model):
     def __str__(self):
         return f"{self.debtor_name} - {self.amount} - {self.date} - {self.status}"
     
+
+
+#  Defined Complimentary Table                 #4
+
+class Complimentary(models.Model):
+    name = models.CharField(max_length=50)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.sale.drink.name} - {self.sale.quantity}"
