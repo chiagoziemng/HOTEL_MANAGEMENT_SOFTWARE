@@ -1,21 +1,46 @@
 from django import forms
-from .models import Drink, Sale,  Debt
+from .models import Drink, Sale,  Debt, Stock, ReduceStock
 
 #  Defined Drink Form
 class DrinkForm(forms.ModelForm):
     class Meta:
         model = Drink
-        fields = ['name','category','opening_stock', 'new_stock', 'price', 'damage', 'image']
+        fields = ['name','category','price','image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'opening_stock': forms.NumberInput(attrs={'class': 'form-control'}),
-            'new_stock': forms.NumberInput(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'damage': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             
         }
+
+class StockForm(forms.ModelForm):
+    drink = forms.ModelChoiceField(queryset=Drink.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+    quantity = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
+   
+
+    class Meta:
+        model = Stock
+        fields = ['drink', 'quantity']
+
+
+class ReduceStockForm(forms.ModelForm):
+    drink = forms.ModelChoiceField(queryset=Drink.objects.all(), empty_label=None, widget=forms.Select(attrs={'class': 'form-control'}))
+    total_reduction = forms.FloatField(min_value=1, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = ReduceStock
+        fields = ['drink', 'total_reduction']
+
+    def save(self, commit=True):
+        instance = super(ReduceStockForm, self).save(commit=False)
+        if commit:
+            instance.drink.total_stock = instance.drink.total_stock() - self.cleaned_data['total_reduction']
+            instance.drink.save()
+            instance.save()
+        return instance
+
+
 
 #  Defined Sale Form
 class SaleForm(forms.ModelForm):
@@ -50,6 +75,7 @@ class SaleForm(forms.ModelForm):
         return cleaned_data
 
 
+
 #  Defined DebtForm
 class DebtForm(forms.ModelForm):
     class Meta:
@@ -63,8 +89,7 @@ class DebtForm(forms.ModelForm):
         amount = self.cleaned_data['amount']
         if amount <= 0:
             raise forms.ValidationError('Amount must be a positive number.')
-        return amount
-
+        return 
 
 
 

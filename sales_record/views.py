@@ -8,13 +8,14 @@ from xhtml2pdf import pisa
 
 from datetime import datetime, timedelta
 from django.utils import timezone
+from django.contrib import messages
 
 import datetime
 import datetime as dt
 from django.core.paginator import Paginator
 
 from inventory_management.models import Sale, Debt
-from inventory_management.forms import SaleForm
+from inventory_management.forms import SaleForm, DebtForm
 
 # Sale & Debt Table Views and we have eight views now:    
 
@@ -92,7 +93,7 @@ def sale_delete(request, pk):
     if request.method == 'POST':
         drink = sale.drink
         drink.number_sold -= sale.quantity
-        drink.total_stock += sale.quantity
+        drink.total_stock = drink.total_stock + sale.quantity
         drink.save()
         sale.delete()
         return redirect('sale_list')
@@ -232,6 +233,7 @@ def clear_debt(request, pk):
 
     context = {'debt': debt}
     return render(request, 'clear_debt.html', context)
+
 
 #                                                   debt_delete                                 #8
 @login_required

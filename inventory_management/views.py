@@ -6,10 +6,11 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.template.loader import get_template
 import csv
+from django.contrib import messages
 
 
-from .models import Drink
-from .forms import DrinkForm
+from .models import Drink, Stock
+from .forms import DrinkForm,  StockForm,  ReduceStockForm
 from .utils import render_to_pdf
 
 
@@ -59,9 +60,9 @@ def drink_list(request):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="drink_list.csv"'
         writer = csv.writer(response)
-        writer.writerow(['Name', 'Category', 'opening_stock', 'new_stock', 'total_stock', 'price', 'number_sold','damage', 'amount_sold', 'closing_stock'])
+        writer.writerow(['Name', 'Category', 'total_stock', 'price'])
         for drink in drinks:
-            writer.writerow([drink.name,  drink.get_category_display(), drink.opening_stock , drink.new_stock, drink.total_stock, drink.price,  drink.number_sold, drink.damage, drink.amount_sold, drink.closing_stock ])
+            writer.writerow([drink.name,  drink.get_category_display(), drink.total_stock, drink.price ])
         return response
 
     context = {
@@ -116,3 +117,37 @@ def drink_delete(request, pk):
         drink.delete()
         return redirect('drink_list')
     return render(request, 'drink_confirm_delete.html', {'drink': drink})
+
+
+
+@login_required
+def reduce_stock(request):
+    if request.method == 'POST':
+        form = ReduceStockForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Stock reduced successfully!.")
+            return redirect('drink_list')
+        else:
+            messages.error(request, 'Error adding stock. Please try again.')
+    else:
+        form = ReduceStockForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'reduce_stock.html', context)
+
+@login_required
+def add_stock(request):
+    if request.method == 'POST':
+        form = StockForm(request.POST)
+        if form.is_valid():
+            stock = form.save()
+            # do something with the newly created stock object
+            messages.success(request, 'Stock added successfully!')
+            return redirect('drink_list')
+        else:
+            messages.error(request, 'Error adding stock. Please try again.')
+    else:
+        form = StockForm()
+    return render(request, 'add_stock.html', {'form': form})

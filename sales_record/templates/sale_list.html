@@ -1,8 +1,9 @@
 {% extends 'layout.html' %}
 {% load static %}
 {% block content %}
-  <h1 class="mb-4">All Sales Record History</h1>
-
+<div class="card">
+  <h1 class="card-header"><span class="text-muted fw-light">Sale /</span>All Sales Record History</h1>
+  <div class="card-body">
   <div class="row mb-3">
     <div class="col-md-6 text-md-right">
       <a href="{% url 'sale_create' %}" class="btn btn-outline-primary"><i class="fas fa-plus-circle"></i> Add Sale</a>
@@ -31,7 +32,7 @@
   </div>
     {% if sales %}
     <div class="table-responsive">
-      <table class="table table-bordered table-dark mb-3">
+      <table class="table table-bordered mb-3">
         <thead>
           <tr class="text-nowrap">
             <th>S/N</th>
@@ -108,6 +109,6 @@
             <td colspan="10" class="text-center">No Sale found.</td>
           </tr>
   {% endif %}
-
+</div></div></div>
 
   {% endblock %}

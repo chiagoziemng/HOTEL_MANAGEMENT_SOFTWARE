@@ -15,17 +15,16 @@ class Drink(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='Others')
     image = models.ImageField(upload_to='drinks', default='drinks/default.png' ,blank=True, null=True)
-    opening_stock = models.IntegerField(default=0)
-    new_stock = models.IntegerField(default=0)
+
     total_stock = models.IntegerField(default=0)
     total_sales = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Added a new field called 'total_sales'
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     number_sold = models.IntegerField(default=0)
-    damage = models.IntegerField(default=0)
     amount_sold = models.DecimalField(max_digits=10, decimal_places=2)
-    closing_stock = models.IntegerField(default=0)
+
     date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.name
@@ -34,16 +33,28 @@ class Drink(models.Model):
     class Meta:
         verbose_name_plural = 'Drinks'
 
+    @property
+    def quantity(self):
+        stock_items = self.stock_set.all()
+        return sum([item.quantity for item in stock_items])
+    
+    def total_reduction(self):
+        reduce_items = self.reducestock_set.all()
+        return sum([item.total_reduction for item in reduce_items])
+    
+    def total_stock(self):
+        return self.quantity - self.number_sold - self.total_reduction()
+
     def save(self, *args, **kwargs):
-        self.total_stock = self.opening_stock + self.new_stock
-        self.closing_stock = self.total_stock - self.number_sold - self.damage
+        # update total sales whenever a sale is made
         self.amount_sold = self.number_sold * self.price
         super().save(*args, **kwargs)
 
 
+#  Defined Sale Table    
+# 
+#                             #2
 
-
-#  Defined Sale Table                                #2
 
 class Sale(models.Model):
     POS = 'POS'
@@ -51,7 +62,7 @@ class Sale(models.Model):
     CASH = 'CASH'
     DEBT = 'DEBT'
     COMPLIMENTARY = 'COMPLIMENTARY'
-
+    
     MODE_OF_PAYMENT_CHOICES = [
         ('POS', 'POS'),
         ('TRANSFER', 'TRANSFER'),
@@ -82,16 +93,14 @@ class Sale(models.Model):
             if self.customer_name is None or self.customer_name == '':
                 raise forms.ValidationError('A name is required for complimentary sales.')
     
-        total_stock = self.drink.opening_stock + self.drink.new_stock - self.drink.damage - self.drink.number_sold
-        if total_stock < self.quantity:
-            raise ValidationError('Insufficient stock for this drink.')       
+        total_stock = self.drink.quantity - self.drink.number_sold
+        if total_stock < 0:
+            raise ValidationError('Insufficient stock for this drink.')
+        self.drink.total_stock = total_stock
+        self.drink.total_sales += self.drink.number_sold * self.drink.price
+        self.drink.save()     
         
         super().save(*args, **kwargs)
-
-    def clean(self):
-        # Check if the drink has enough stock to fulfill the sale
-        if self.quantity > self.drink.total_stock:
-            raise ValidationError('Insufficient stock for this drink.')
     
     def __str__(self):
         return f"{self.drink.name} - {self.quantity} - {self.total_price}"
@@ -134,3 +143,25 @@ class Complimentary(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.sale.drink.name} - {self.sale.quantity}"
+    
+
+#  Defined Add quantity Table                 #5
+
+class Stock(models.Model):
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.drink.name} - {self.quantity} units"
+    
+#  Defined Reduce total_stock Table                 #6
+
+class ReduceStock(models.Model):
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
+    total_reduction = models.PositiveIntegerField(default=0)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.drink.name} - {self.quantity} units"
+

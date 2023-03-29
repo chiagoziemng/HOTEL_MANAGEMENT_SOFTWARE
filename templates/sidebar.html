@@ -41,6 +41,17 @@
             </a>
           </li>
           {% if request.user.is_staff %}
+          <li class="menu-item" {% if section == "drink_list" %}class="selected"{% endif %}>
+            <a href="{% url 'add_stock' %}" class="menu-link">
+              <div data-i18n="Account">  <i class="fas fa-plus-circle"></i>  Add Stock</div>
+            </a>
+          </li>
+          <li class="menu-item" {% if section == "drink_list" %}class="selected"{% endif %}>
+            <a href="{% url 'reduce_stock' %}" class="menu-link">
+              <div data-i18n="Account">  <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                Reduce Stock</div>
+            </a>
+          </li>
           <li class="menu-item" {% if section == "debt_list" %}class="selected"{% endif %}>
             <a href="{% url 'debt_list' %}" class="menu-link">
               <div data-i18n="Connections"><i class="fas fa-hand-holding-usd"></i> Debtors</div>

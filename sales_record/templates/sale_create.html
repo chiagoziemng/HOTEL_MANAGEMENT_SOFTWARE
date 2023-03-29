@@ -1,14 +1,17 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+<div class="content-wrapper">
+  <div class="card mb-4">
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <h1 class="card-header"><span class="text-muted fw-light">Sale /</span>Create Sale</h1>
+      <div class="card-body">
   <div class="container">
     {% if form.errors %}
     <div class="alert alert-danger pb-4">
       <strong> {{ form.non_field_errors }}</strong>
     </div>
   {% endif %}
-  
-    <h1>Create Sale</h1>
     <form method="post">
       {% csrf_token %}
       <div class="form-group">
@@ -51,4 +54,8 @@
     
     
   </div>
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

@@ -41,14 +41,8 @@
                       <tr>
                         <th>S/N</th>
                         <th>Name</th>
-                        <th>Opening Stock</th>
-                        <th>New Stock</th>
                         <th>Total Stock</th>
                         <th>Price</th>
-                        <th>Number Sold</th>
-                        <th>Damage</th>
-                        <th>Amount Sold</th>
-                        <th>Closing Stock</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -56,14 +50,8 @@
                         <tr>
                           <td>{{ forloop.counter }}</td>
                           <td>{{ drink.name|capfirst  }}</td>
-                          <td>{{ drink.opening_stock }}</td>
-                          <td>{{ drink.new_stock }}</td>
                           <td>{{ drink.total_stock }}</td>
                           <td>{{ drink.price }}</td>
-                          <td>{{ drink.number_sold }}</td>
-                          <td>{{ drink.damage }}</td>
-                          <td>{{ drink.amount_sold }}</td>
-                          <td>{{ drink.closing_stock }}</td>
                         </tr>
                       {% endfor %}
                     </tbody>
