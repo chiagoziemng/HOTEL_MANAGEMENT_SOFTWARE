@@ -37,11 +37,13 @@
           <tr class="text-nowrap">
             <th>S/N</th>
             <th scope="col">Date</th>
-            <th scope="col">Drink</th>
-            <th scope="col">Price</th>
+            <th scope="col">Drink Name</th>
+            <th scope="col">Selling Price</th>
             <th scope="col">Quantity</th>
             <th scope="col">Total Price</th>
             <th scope="col">Mode of Payment</th>
+            <th scope="col">Receipt No./ RRN</th>
+            <th scope="col">Bank</th>
             {% if request.user.is_staff %}
             <th scope="col">Actions</th>
             {% endif %}
@@ -57,6 +59,8 @@
               <td>{{ sale.quantity }}</td>
               <td>₦{{ sale.total_price }}</td>
               <td>{{ sale.mode_of_payment }}</td>
+              <td>{{ sale.receipt_no }}</td>
+              <td>{{ sale.bankused  }}</td>
               {% if request.user.is_staff %}
               <td>
                 <div class="dropdown">

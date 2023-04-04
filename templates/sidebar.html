@@ -65,7 +65,7 @@
           {% endif %}
         </ul>
       </li>
-      <li class="menu-item">
+      {% comment %} <li class="menu-item">
         <button href="javascript:void(0);" class="menu-link menu-toggle"  disabled>
           <i class='bx bx-lock-alt'></i>
           <div data-i18n="Authentications">Restaurant</div>
@@ -76,7 +76,7 @@
           <i class='bx bx-lock-alt'></i>
           <div data-i18n="Misc">Expense Manager</div>
         </button>
-      </li>
+      </li> {% endcomment %}
 
 
         <!-- Log Out -->
@@ -84,7 +84,6 @@
         <li class="menu-item">
           <a
             href="{% url 'logout' %}"
-            target="_blank"
             class="menu-link"
           >
           <i class="bx bx-power-off me-2"></i>

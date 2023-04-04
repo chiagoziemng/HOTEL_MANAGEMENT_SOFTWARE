@@ -74,9 +74,16 @@ class Sale(models.Model):
     drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     mode_of_payment = models.CharField(max_length=20, choices=MODE_OF_PAYMENT_CHOICES)
     total_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+
+    receipt_no = models.CharField(max_length=50, blank=True, null=True)
+    bankused = models.CharField(max_length=50, blank=True, null=True)
+
+
     date_created = models.DateTimeField(auto_now_add=True)
     debtor_name = models.CharField(max_length=50, blank=True, null=True)
     customer_name = models.CharField(max_length=50, blank=True, null=True)
@@ -95,7 +102,7 @@ class Sale(models.Model):
     
         total_stock = self.drink.quantity - self.drink.number_sold
         if total_stock < 0:
-            raise ValidationError('Insufficient stock for this drink.')
+            raise ValidationError('Sorry, there is not enough stock for this drink. Please adjust the quantity and try again.')
         self.drink.total_stock = total_stock
         self.drink.total_sales += self.drink.number_sold * self.drink.price
         self.drink.save()     
@@ -121,16 +128,24 @@ class Debt(models.Model):
         ('Owing', 'Owing'),
         ('Cleared', 'Cleared'),
     ]
+    PAYMENT_MODE_CHOICES = [
+        ('POS', 'POS'),
+        ('TRANSFER', 'TRANSFER'),
+        ('CASH', 'CASH'),
+    ]
     
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(auto_now_add=True)
     debtor_name = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Owing')
+    receipt_no = models.CharField(max_length=50, blank=True, null=True)
+    bankused = models.CharField(max_length=50, blank=True, null=True)
+    payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODE_CHOICES)  # New field
     cleared_on = models.DateField(null=True, blank=True)
     
     
     def __str__(self):
-        return f"{self.debtor_name} - {self.amount} - {self.date} - {self.status}"
+        return f"{self.debtor_name} - {self.amount} - {self.date} - {self.status} - {self.receipt_no} - {self.bankused} - {self.payment_mode}"
     
 
 

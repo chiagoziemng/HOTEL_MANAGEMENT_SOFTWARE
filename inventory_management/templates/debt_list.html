@@ -30,6 +30,13 @@
           <th>Date</th>
           <th>{% if status == 'cleared' %}Debtor{% else %}Debtor Name{% endif %}</th>
           <th>Amount</th>
+          {% if status == 'cleared' %}
+          <th>Mode Of Payment</th>
+          <th>Receipt No./RRN</th>
+          <th>Bank</th>
+          {% else %}
+        
+          {% endif %} 
           {% if status != 'cleared' %}
             <th>Action</th>
           {% else %}
@@ -52,8 +59,12 @@
             </td>
             <td>₦ {{ debt.amount }}</td>
             {% if status == 'cleared' %}
+            <td>{{ debt.payment_mode }}</td>
+    <td>{{ debt.receipt_no }}</td>
+    <td>{{ debt.bankused }}</td>
               <td>{{ debt.cleared_on }}</td>
             {% else %}
+            
               <td>
                 {% if debt.status != 'Cleared' %}
                 <a href="{% url 'clear_debt' pk=debt.pk %}" class="btn btn-sm btn-success">Clear Debt</a>

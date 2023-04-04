@@ -46,12 +46,14 @@ class ReduceStockForm(forms.ModelForm):
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
-        fields = ['sale_date', 'drink', 'quantity', 'mode_of_payment', 'debtor_name', 'customer_name']
+        fields = ['sale_date', 'drink', 'quantity', 'mode_of_payment','receipt_no', 'bankused', 'debtor_name', 'customer_name']
         widgets = {
             'sale_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'drink': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'mode_of_payment': forms.Select(attrs={'class': 'form-control'}),
+            'receipt_no': forms.TextInput(attrs={'class': 'form-control'}),
+            'bankused': forms.TextInput(attrs={'class': 'form-control'}),
             'debtor_name': forms.TextInput(attrs={'class': 'form-control'}),
             'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
@@ -80,9 +82,10 @@ class SaleForm(forms.ModelForm):
 class DebtForm(forms.ModelForm):
     class Meta:
         model = Debt
-        fields = ['debtor_name', 'amount', 'status']
+        fields = ['debtor_name', 'amount', 'status', 'receipt_no', 'bankused', 'payment_mode']
         widgets = {
-            'status': forms.Select(choices=Debt.STATUS_CHOICES)
+            'status': forms.Select(choices=Debt.STATUS_CHOICES),
+            'payment_mode': forms.Select(choices=Debt.PAYMENT_MODE_CHOICES),
         }
 
     def clean_amount(self):

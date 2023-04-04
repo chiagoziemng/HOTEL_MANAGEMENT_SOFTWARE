@@ -93,7 +93,6 @@ def sale_delete(request, pk):
     if request.method == 'POST':
         drink = sale.drink
         drink.number_sold -= sale.quantity
-        drink.total_stock = drink.total_stock + sale.quantity
         drink.save()
         sale.delete()
         return redirect('sale_list')
@@ -226,13 +225,20 @@ def clear_debt(request, pk):
 
     if request.method == 'POST':
         cleared_on = request.POST['cleared_on']
+        receipt_no = request.POST['receipt_no']
+        bankused = request.POST['bankused']
+        payment_mode = request.POST['payment_mode']
         debt.status = 'Cleared'
         debt.cleared_on = cleared_on
+        debt.receipt_no = receipt_no
+        debt.bankused = bankused
+        debt.payment_mode =  payment_mode
         debt.save()
         return redirect('debt_list')
 
     context = {'debt': debt}
     return render(request, 'clear_debt.html', context)
+
 
 
 #                                                   debt_delete                                 #8

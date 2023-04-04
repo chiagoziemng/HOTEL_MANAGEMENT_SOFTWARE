@@ -30,6 +30,14 @@
         {{ form.mode_of_payment.label_tag }}
         {{ form.mode_of_payment }}
       </div>
+      <div class="form-group">
+        <label for="{{ form.receipt_no.id_for_label }}">Receipt Number:</label>
+        <input type="text" class="form-control" name="{{ form.receipt_no.name }}" id="{{ form.receipt_no.id_for_label }}">
+      </div>
+      <div class="form-group">
+        <label for="{{ form.bankused.id_for_label }}">Bank Used:</label>
+        <input type="text" class="form-control" name="{{ form.bankused.name }}" id="{{ form.bankused.id_for_label }}">
+      </div>
       {% if form.mode_of_payment.value == 'DEBT' %}
       <div class="form-group">
         {{ form.debtor_name.label_tag }}
